@@ -1,0 +1,31 @@
+package main
+
+	
+	// Helper function to access an image's color at the given pixel coordinates.
+	func imageColorAtPixel(pixelCoords vec2) vec4 {
+		sizeInPixels := imageSrcTextureSize()
+		offsetInTexels, _ := imageSrcRegionOnTexture()
+		adjustedTexelCoords := pixelCoords/sizeInPixels + offsetInTexels
+		return imageSrc0At(adjustedTexelCoords)
+	}
+
+	// Helper function to access an image's color at the given coordinates
+	// from the unit interval (e.g. top-left is (0, 0), center is (0.5, 0.5),
+	// bottom-right is (1.0, 1.0)).
+	func imageColorAtUnit(unitCoords vec2) vec4 {
+		offsetInTexels, sizeInTexels := imageSrcRegionOnTexture()
+		adjustedTexelCoords := unitCoords*sizeInTexels + offsetInTexels
+		return imageSrc0At(adjustedTexelCoords)
+	}
+	func Fragment(position vec4, srcPos vec2, _ vec4) vec4 {
+        
+        // imgPos := position.xy
+        color := imageSrc0UnsafeAt(srcPos)
+
+        red := color.r*0.7;
+        green := color.g*0.7;
+        blue := color.b*0.7;
+
+		return vec4(red,green,blue,color.a)
+	}
+
