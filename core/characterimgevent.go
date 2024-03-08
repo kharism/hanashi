@@ -31,6 +31,27 @@ func (s *CharacterRemoveEvent) Execute(Scene *Scene) {
 	Scene.RemoveVieableCharacter(s.Name)
 }
 
+type CharacterMoveEvent struct {
+	Name string
+	MoveParam
+}
+
+func NewCharacterMoveEvent(name string, moveParam MoveParam) Event {
+	return &CharacterMoveEvent{Name: name, MoveParam: moveParam}
+}
+
+func (s *CharacterMoveEvent) Execute(scene *Scene) {
+	for _, c := range scene.ViewableCharacters {
+		if c.Name == s.Name {
+			ma := MoveAnimation{}
+			ma.tx = s.MoveParam.Tx
+			ma.ty = s.MoveParam.Ty
+			ma.Speed = s.MoveParam.Speed
+			c.Img.AddAnimation(&ma)
+		}
+	}
+}
+
 type CharacterAddShaderEvent struct {
 	Name   string
 	Shader *ebiten.Shader

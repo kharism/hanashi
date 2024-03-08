@@ -8,6 +8,14 @@ import (
 	"golang.org/x/image/font/opentype"
 )
 
+// event that shows dialogue/monologue. The location of the Name and text
+// will follow Layouter on the scene.
+//
+// Name is character name who tells the Dialogue. It does not
+// need to be registered on AvailableCharacter on Scene. it
+// can be made empty string
+//
+// Dialogue is the text shown.
 type DialogueEvent struct {
 	Name     string
 	Dialogue string
@@ -15,6 +23,8 @@ type DialogueEvent struct {
 }
 
 var (
+	// the default font used for many things. Overwrite this var
+	// to use different font
 	DefaultFont font.Face
 )
 

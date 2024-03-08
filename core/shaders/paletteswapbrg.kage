@@ -1,0 +1,6 @@
+package main
+
+func Fragment(position vec4, srcPos vec2, _ vec4) vec4 {	
+    sample := imageSrc0UnsafeAt(srcPos)
+	return sample.brga
+}

@@ -49,6 +49,19 @@ type ScaleParam struct {
 	// Tx float64
 }
 
+func NewMovableImage(image *ebiten.Image, moveParam MoveParam, scaleParam ScaleParam, shaderOptions *ShaderParam) *MovableImage {
+	mov := &MovableImage{image: image, x: moveParam.Sx, y: moveParam.Sy, ScaleParam: &scaleParam, mutex: &sync.Mutex{}}
+	if shaderOptions != nil {
+		if shaderOptions.Shader != nil {
+			mov.Shader = shaderOptions.Shader
+		} else {
+			mov.Shader, _ = shaderPool.GetShader(shaderOptions.ShaderName)
+		}
+	}
+
+	return mov
+}
+
 // parameter to use shader. You can fill Shader or Shadername and the function
 // that takes it will determine wheter to assign shader directly or uses shader
 // already registered on shaderpool
@@ -56,6 +69,8 @@ type ShaderParam struct {
 	Shader     *ebiten.Shader
 	ShaderName string
 }
+
+// struct to represent movement of an image
 type MoveAnimation struct {
 	// target x
 	tx float64
@@ -99,6 +114,8 @@ func (e *MovableImage) AddAnimation(animation ...*MoveAnimation) {
 	defer e.mutex.Unlock()
 	e.AnimationQueue = append(e.AnimationQueue, animation...)
 }
+
+// replace current animation with new one
 func (e *MovableImage) ReplaceCurrentAnim(animation *MoveAnimation) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()

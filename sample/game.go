@@ -2,6 +2,7 @@ package main
 
 import (
 	"github/kharism/hanashi/core"
+	"os"
 
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 )
@@ -14,6 +15,9 @@ func NewGame(Scene *core.Scene) Game {
 	g := Game{Scene: Scene}
 	Scene.SetLayouter(&g)
 	g.Scene.Events[0].Execute(g.Scene)
+	g.Scene.Done = func() {
+		os.Exit(0)
+	}
 	return g
 }
 func (g *Game) Update() error {

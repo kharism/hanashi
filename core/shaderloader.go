@@ -25,6 +25,18 @@ var DarkerShader []byte
 
 const DARKER_SHADER = "DARKER_SHADER"
 
+//go:embed shaders/darker.kage
+var GrayscaleShader []byte
+
+const GRAYSCALE_SHADER = "DARKER_SHADER"
+
+//go:embed shaders/paletteswapbrg.kage
+var PaletteSwapBrgShader []byte
+
+const PALETTESWAPBRG_SHADER = "BRG_SHADER"
+
+// pool that store compiled shader. It is a singleton
+// register new shader here so you can use it alongside ShaderParam
 type ShaderPool struct {
 	mutex     *sync.Mutex
 	shaderMap map[string]*ebiten.Shader
@@ -32,6 +44,7 @@ type ShaderPool struct {
 
 var shaderPool *ShaderPool
 
+// the default way to get shaderPool object
 func GetShaderPool() *ShaderPool {
 	if shaderPool == nil {
 		shaderPool = &ShaderPool{mutex: &sync.Mutex{}, shaderMap: map[string]*ebiten.Shader{}}
@@ -69,7 +82,21 @@ func init() {
 		fmt.Println(err.Error())
 		log.Fatal(err)
 	}
+	grayscale, err := ebiten.NewShader(GrayscaleShader)
+	if err != nil {
+		fmt.Println(err.Error())
+		log.Fatal(err)
+	}
+
+	psbrg, err := ebiten.NewShader(PaletteSwapBrgShader)
+	if err != nil {
+		fmt.Println(err.Error())
+		log.Fatal(err)
+	}
+
 	pool.RegisterShader(SEPIA_SHADER, sepia)
 	pool.RegisterShader(INVERT_SHADER, invert)
 	pool.RegisterShader(DARKER_SHADER, darker)
+	pool.RegisterShader(GRAYSCALE_SHADER, grayscale)
+	pool.RegisterShader(PALETTESWAPBRG_SHADER, psbrg)
 }
