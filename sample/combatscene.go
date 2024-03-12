@@ -19,6 +19,7 @@ type CombatScene struct {
 	onIsBlinking   bool
 	counter        int
 	blinkCount     int
+	Characters     []CombatCharacter
 	currentAnim    CombatAnimation
 	animationQueue chan CombatAnimation
 }

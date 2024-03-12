@@ -31,7 +31,9 @@ func main() {
 	state.monsterName = "opp/slime.png"
 	state.backgroundName = "bg/alley.png"
 	sm := stagehand.NewSceneManager[MyState](scene1, state)
+	// set Done function to tell the scene what to do after
 	scene1.Done = func() {
+		// check whether user decided to fight or not
 		if scene1.GetSceneData("Fight it?").(string) == "yes" {
 			scene1.StateDecorator = func(ms MyState) MyState {
 				ms.monsterName = "opp/slime.png"

@@ -1,6 +1,7 @@
 package core
 
 // create branching dialogue based on SceneDataKey.
+// this code assume the value of SceneData is string
 // if no matching string data is found it will show empty string
 type BranchingDialogueEvent struct {
 	Name            string

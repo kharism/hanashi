@@ -72,8 +72,8 @@ func (s *OptionPickerState) Update() {
 				if s.Scene.EventIndex == pp-1 {
 					s.Scene.Done()
 				} else {
-					s.Scene.Events[s.Scene.EventIndex+1].Execute(s.Scene)
 					s.Scene.EventIndex += 1
+					s.Scene.Events[s.Scene.EventIndex].Execute(s.Scene)
 				}
 
 				break
