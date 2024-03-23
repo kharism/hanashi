@@ -25,6 +25,35 @@ func (a *AttackAnim) Draw(screen *ebiten.Image) {
 	a.cs.attackAnim.Draw(screen)
 }
 
+// move attack animation
+type MoveAttackAnim struct {
+	counter  int
+	cs       *CombatScene
+	doneFunc func(cs *CombatScene)
+
+	PosX float64
+	PosY float64
+}
+
+func (a *MoveAttackAnim) GetDoneFunc() func(cs *CombatScene) {
+	return a.doneFunc
+}
+func (a *MoveAttackAnim) SetDoneFunc(g func(cs *CombatScene)) {
+	a.doneFunc = g
+}
+func (a *MoveAttackAnim) Update() {
+	a.cs.attackAnim.SetPos(a.PosX, a.PosY)
+
+	// a.cs.attackAnim.Update()
+}
+func (a *MoveAttackAnim) Draw(screen *ebiten.Image) {
+	a.cs.opp.Draw(screen)
+	// a.cs.attackAnim.Draw(screen)
+	if a.doneFunc != nil {
+		a.doneFunc(a.cs)
+	}
+}
+
 // blink the opp sprite
 type BlinkAnim struct {
 	counter int
@@ -82,7 +111,15 @@ func (c *ComplexAnim) Update() {
 		c.doneFunc(c.cs)
 		return
 	}
+	// fmt.Println(c.idx)
+	// prev := c.idx
 	c.animations[c.idx].Update()
+	// fmt.Println("=====")
+	// fmt.Println(c.idx)
+	if c.idx == len(c.animations) {
+		c.doneFunc(c.cs)
+		return
+	}
 	if c.animations[c.idx].GetDoneFunc() == nil {
 		c.animations[c.idx].SetDoneFunc(func(cs *CombatScene) {
 			c.idx += 1

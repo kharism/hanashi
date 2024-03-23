@@ -48,14 +48,46 @@ type ScaleParam struct {
 	// Ty float64
 	// Tx float64
 }
+type MovableImageParams struct {
+	MoveParam     MoveParam
+	ScaleParam    *ScaleParam
+	ShaderOptions *ShaderParam
+}
 
-func NewMovableImage(image *ebiten.Image, moveParam MoveParam, scaleParam ScaleParam, shaderOptions *ShaderParam) *MovableImage {
-	mov := &MovableImage{image: image, x: moveParam.Sx, y: moveParam.Sy, ScaleParam: &scaleParam, mutex: &sync.Mutex{}}
-	if shaderOptions != nil {
-		if shaderOptions.Shader != nil {
-			mov.Shader = shaderOptions.Shader
+func (e *MovableImage) GetPos() (float64, float64) {
+	return e.x, e.y
+}
+
+// this function is to immediately move the image to pos x,y
+func (e *MovableImage) SetPos(x, y float64) {
+	e.x = x
+	e.y = y
+}
+func (e *MovableImage) GetSize() (float64, float64) {
+	return float64(e.image.Bounds().Dx()) * e.ScaleParam.Sx, float64(e.image.Bounds().Dy()) * e.ScaleParam.Sy
+}
+func NewMovableImageParams() *MovableImageParams {
+	return &MovableImageParams{ScaleParam: &ScaleParam{Sx: 1, Sy: 1}}
+}
+func (p *MovableImageParams) WithMoveParam(param MoveParam) *MovableImageParams {
+	p.MoveParam = param
+	return p
+}
+func (p *MovableImageParams) WithShader(param *ShaderParam) *MovableImageParams {
+	p.ShaderOptions = param
+	return p
+}
+func (p *MovableImageParams) WithScale(param *ScaleParam) *MovableImageParams {
+	p.ScaleParam = param
+	return p
+}
+func NewMovableImage(image *ebiten.Image, param *MovableImageParams) *MovableImage {
+	mov := &MovableImage{image: image, x: param.MoveParam.Sx, y: param.MoveParam.Sy, ScaleParam: param.ScaleParam, mutex: &sync.Mutex{}}
+	if param.ShaderOptions != nil {
+		if param.ShaderOptions.Shader != nil {
+			mov.Shader = param.ShaderOptions.Shader
 		} else {
-			mov.Shader, _ = shaderPool.GetShader(shaderOptions.ShaderName)
+			mov.Shader, _ = shaderPool.GetShader(param.ShaderOptions.ShaderName)
 		}
 	}
 
