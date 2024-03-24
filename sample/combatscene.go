@@ -253,7 +253,7 @@ func (s *CombatScene) DrawCharacter(screen *ebiten.Image) {
 }
 func (s *CombatScene) Draw(screen *ebiten.Image) {
 	// your draw code
-	// s.background.Draw(screen)
+	s.background.Draw(screen)
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("OnBlink %s\nCounter %d", s.onIsBlinking, s.counter))
 
 	s.hpIcon.Draw(screen)

@@ -20,7 +20,7 @@ func (v *GameOverScene) Load(state MyState, sm *stagehand.SceneManager[MyState])
 
 	v.gameoverImage, _ = imgPool.GetImage("bg/game_over.png")
 	v.bg = ebiten.NewImage(768, 512)
-	v.bg.Fill(color.RGBA{200, 200, 200, 100})
+	v.bg.Fill(color.RGBA{70, 70, 70, 100})
 }
 func (v *GameOverScene) Unload() MyState {
 	if v.StateDecorator != nil {

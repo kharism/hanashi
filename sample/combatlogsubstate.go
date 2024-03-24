@@ -23,7 +23,7 @@ func NewCombatLogSubState(combatScene *CombatScene) CombatSubstate {
 }
 func (c *CombatLogSubstate) Draw(screen *ebiten.Image) {
 	LogBox := ebiten.NewImage(768, 100)
-	LogBox.Fill(color.RGBA{R: 0, G: 0, B: 197, A: 0})
+	LogBox.Fill(color.RGBA{R: 0, G: 0, B: 197, A: 255})
 	opt := ebiten.DrawImageOptions{}
 	opt.GeoM.Translate(0, 300)
 	screen.DrawImage(LogBox, &opt)
