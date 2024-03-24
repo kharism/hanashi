@@ -89,6 +89,26 @@ func (v *CombatScene) SwitchMenuSubstate(newState CombatSubstate) {
 		v.CombatQueue = append(v.CombatQueue, jj)
 	}
 }
+func (v *CombatScene) PlayerTakeDamage(player *CombatCharacter, damage int) {
+	if damage >= player.HP {
+		player.HP = 0
+		logger := combatLogSubState.(*CombatLogSubstate)
+		logger.BattleLog = fmt.Sprintf("%s is defeated", player.Name)
+		allDead := true
+		for _, c := range v.Characters {
+			if c.HP > 0 {
+				allDead = false
+				break
+			}
+		}
+		if allDead {
+			commandEnd := CombatCommand{Command: COMMAND_END_LOOSE}
+			v.CombatQueue = append(v.CombatQueue[:logger.queueIndex], commandEnd)
+		}
+	} else {
+		player.HP -= damage
+	}
+}
 func (v *CombatScene) OppTakeDamage(dmg int) {
 	if dmg >= v.oppHp {
 		v.oppHp = 0

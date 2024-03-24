@@ -8,6 +8,7 @@ import (
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/joelschutz/stagehand"
 )
 
 type CombatLogSubstate struct {
@@ -70,6 +71,11 @@ func (v *CombatLogSubstate) DoCombat() {
 		cc.Routine.Execute(v.combatScene, v)
 	case COMMAND_END_WIN:
 		v.BattleLog = fmt.Sprintf("opponent defeated")
+	case COMMAND_END_LOOSE:
+		v.BattleLog = fmt.Sprintf("Party defeated")
+		v.combatScene.DoneCombat = func() {
+			sm.SwitchWithTransition(gameoverScene, stagehand.NewFadeTransition[MyState](0.5))
+		}
 	}
 	v.queueIndex += 1
 
@@ -80,6 +86,8 @@ func (v *CombatLogSubstate) Update() {
 			// v.queueIndex = 0
 			if v.combatScene.oppHp == 0 {
 				v.combatScene.currentAnim = nil
+				v.combatScene.DoneCombat()
+			} else if v.BattleLog == fmt.Sprintf("Party defeated") {
 				v.combatScene.DoneCombat()
 			} else {
 				v.combatScene.SwitchMenuSubstate(mainCombatMenu)

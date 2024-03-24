@@ -10,6 +10,8 @@ import (
 )
 
 var imgPool ImagePool
+var sm *stagehand.SceneManager[MyState]
+var gameoverScene *GameOverScene
 
 func init() {
 	imgPool = ImagePool{Map: map[string]*ebiten.Image{}}
@@ -39,14 +41,13 @@ func main() {
 		NewCombatCharacter("sven", 0, 9).SetAtkDamage(func() int {
 			return Dice(1, 6)
 		}),
-		NewCombatCharacter("shizuku", 9, 9).SetAtkDamage(func() int {
+		NewCombatCharacter("shizuku", 1, 9).SetAtkDamage(func() int {
 			return Dice(1, 5)
 		}),
 	}
-	combatScene.DoneCombat = func() {
-		os.Exit(0)
-	}
-	sm := stagehand.NewSceneManager[MyState](scene1, state)
+
+	sm = stagehand.NewSceneManager[MyState](combatScene, state)
+	gameoverScene = &GameOverScene{}
 	// set Done function to tell the scene what to do after
 	scene1.Done = func() {
 		// check whether user decided to fight or not
@@ -66,6 +67,10 @@ func main() {
 			sm.SwitchTo(runScene)
 		}
 
+	}
+	// when combat is go to scene
+	combatScene.DoneCombat = func() {
+		os.Exit(0)
 	}
 	if err := ebiten.RunGame(sm); err != nil {
 		log.Fatal(err)
