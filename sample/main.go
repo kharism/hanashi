@@ -46,7 +46,7 @@ func main() {
 		}),
 	}
 
-	sm = stagehand.NewSceneManager[MyState](combatScene, state)
+	sm = stagehand.NewSceneManager[MyState](scene1, state)
 	gameoverScene = &GameOverScene{}
 	// set Done function to tell the scene what to do after
 	scene1.Done = func() {
