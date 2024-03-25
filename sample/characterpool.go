@@ -1,6 +1,6 @@
 package main
 
-import "github/kharism/hanashi/core"
+import "github.com/kharism/hanashi/core"
 
 var Characters map[string]*core.Character
 

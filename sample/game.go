@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github/kharism/hanashi/core"
 	"os"
+
+	"github.com/kharism/hanashi/core"
 
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 )

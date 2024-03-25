@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github/kharism/hanashi/core"
 	"log"
+
+	"github.com/kharism/hanashi/core"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"

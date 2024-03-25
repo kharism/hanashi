@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github/kharism/hanashi/core"
 	"log"
 	"os"
+
+	"github.com/kharism/hanashi/core"
 
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 	"github.com/joelschutz/stagehand"
