@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github/kharism/hanashi/core"
 	"math/rand"
+
+	"github.com/kharism/hanashi/core"
 )
 
 // struct used to define character in combatscene

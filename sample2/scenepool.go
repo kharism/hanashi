@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github/kharism/hanashi/core"
 	"image/color"
 	"os"
+
+	"github.com/kharism/hanashi/core"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )

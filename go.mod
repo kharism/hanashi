@@ -1,4 +1,4 @@
-module github/kharism/hanashi
+module github.com/kharism/hanashi
 
 go 1.22
 
