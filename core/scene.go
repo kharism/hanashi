@@ -23,10 +23,11 @@ type Scene struct {
 	getLayouter GetLayouter
 
 	// text stuff
-	TxtBg       *ebiten.Image
-	CurCharName string
-	CurDialog   string
-	FontFace    font.Face
+	TxtBg         *ebiten.Image
+	CurCharName   string
+	CurDialog     string
+	VisibleDialog string
+	FontFace      font.Face
 
 	SceneData map[string]any
 
@@ -194,11 +195,14 @@ func (g *Scene) Update() error {
 			} else {
 				g.Events[g.EventIndex].Execute(g)
 			}
+			g.VisibleDialog = ""
 		}
 	} else {
 		g.CurrentSubState.Update()
 	}
-
+	if g.CurDialog != g.VisibleDialog {
+		g.VisibleDialog = g.CurDialog[:len(g.VisibleDialog)+1]
+	}
 	return nil
 }
 func (g *Scene) Draw(screen *ebiten.Image) {
@@ -233,7 +237,7 @@ func (g *Scene) Draw(screen *ebiten.Image) {
 		}
 
 		text.Draw(screen, g.CurCharName, curFont, nameX, nameY, color.White)
-		text.Draw(screen, g.CurDialog, curFont, dialogueX, dialogueY, color.White)
+		text.Draw(screen, g.VisibleDialog, curFont, dialogueX, dialogueY, color.White)
 	} else {
 		g.CurrentSubState.Draw(screen)
 	}
