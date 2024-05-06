@@ -14,10 +14,12 @@ type CustomScene struct {
 	*core.Scene
 	state          MyState
 	StateDecorator StateDecorator
+	sm             *stagehand.SceneDirector[MyState]
 }
 type StateDecorator func(MyState) MyState
 
 func (v *CustomScene) Load(state MyState, sm stagehand.SceneController[MyState]) {
+	v.sm = sm.(*stagehand.SceneDirector[MyState])
 	v.Scene.Events[0].Execute(v.Scene)
 }
 func (v *CustomScene) Unload() MyState {
@@ -126,9 +128,26 @@ func GetScene() *CustomScene {
 	txtBgImage.Fill(color.NRGBA{0, 0, 255, 255})
 	h.TxtBg = txtBgImage
 	h.SetLayouter(&h)
+	h.Done = func() {
+		if h.GetSceneData("Fight it?").(string) == "yes" {
+			h.StateDecorator = func(ms MyState) MyState {
+				ms.monsterName = "opp/slime.png"
+				ms.backgroundName = "bg/alley.png"
+				ms.monsterHp = 10
+				ms.CombatCharacters = []*CombatCharacter{NewCombatCharacter("sven", 9, 9).SetAtkDamage(func() int {
+					return Dice(1, 6)
+				})}
+				return ms
+			}
+			h.sm.ProcessTrigger(Trigger1)
+		} else {
+			h.sm.ProcessTrigger(Trigger2)
+		}
+
+	}
 	return &h
 }
-func RunScene1(cs *CombatScene, sceneManager *stagehand.SceneManager[MyState]) *CustomScene {
+func RunScene1(cs *CombatScene) *CustomScene {
 	h := CustomScene{Scene: core.NewScene()}
 	h.Characters = []*core.Character{
 		core.NewCharacter("sven", "chr/8009774b-2341-4b31-b63d-e172b525841e.png", &imgPool),
@@ -163,7 +182,8 @@ func RunScene1(cs *CombatScene, sceneManager *stagehand.SceneManager[MyState]) *
 		return ms
 	}
 	h.Done = func() {
-		sceneManager.SwitchWithTransition(cs, stagehand.NewFadeTransition[MyState](0.05))
+		// sceneManager.SwitchWithTransition(cs, stagehand.NewFadeTransition[MyState](0.05))
+		h.sm.ProcessTrigger(Trigger1)
 	}
 	return &h
 }
