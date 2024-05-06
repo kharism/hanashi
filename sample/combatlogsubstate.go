@@ -8,7 +8,7 @@ import (
 
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/joelschutz/stagehand"
 )
 
@@ -28,7 +28,10 @@ func (c *CombatLogSubstate) Draw(screen *ebiten.Image) {
 	opt := ebiten.DrawImageOptions{}
 	opt.GeoM.Translate(0, 300)
 	screen.DrawImage(LogBox, &opt)
-	text.Draw(screen, c.BattleLog, core.DefaultFont, 0, 300+20, color.White)
+	textOpt := text.DrawOptions{}
+	textOpt.GeoM.Translate(0, 300+20)
+	textOpt.ColorScale.ScaleWithColor(color.White)
+	text.Draw(screen, c.BattleLog, core.DefaultFont, &textOpt)
 }
 func (v *CombatLogSubstate) BeginCombat() {
 

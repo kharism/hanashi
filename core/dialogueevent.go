@@ -1,11 +1,11 @@
 package core
 
 import (
+	"bytes"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/examples/resources/fonts"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/opentype"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 // event that shows dialogue/monologue. The location of the Name and text
@@ -19,31 +19,39 @@ import (
 type DialogueEvent struct {
 	Name     string
 	Dialogue string
-	FontFace font.Face
+	FontFace text.Face
 }
 
 var (
 	// the default font used for many things. Overwrite this var
 	// to use different font
-	DefaultFont font.Face
+	DefaultFont text.Face
 )
 
 func init() {
-	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
+	// tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	s, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
 	if err != nil {
 		log.Fatal(err)
 	}
 	const dpi = 72
-	DefaultFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    24,
-		DPI:     dpi,
-		Hinting: font.HintingVertical,
-	})
-	if err != nil {
-		log.Fatal(err)
+	// DefaultFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+	// 	Size:    24,
+	// 	DPI:     dpi,
+	// 	Hinting: font.HintingVertical,
+	// })
+	DefaultFont = &text.GoTextFace{
+		Source: s,
+		Size:   24,
 	}
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 }
-func NewDialogueEvent(name, dialogue string, fontface font.Face) Event {
+func NewDialogueEvent(name, dialogue string, fontface text.Face) Event {
 	return &DialogueEvent{Name: name, Dialogue: dialogue, FontFace: fontface}
 }
 func (b *DialogueEvent) Execute(scene *Scene) {

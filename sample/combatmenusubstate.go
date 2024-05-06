@@ -7,7 +7,7 @@ import (
 
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 type CombatSubstate interface {
@@ -30,7 +30,10 @@ func (b *MenuButton) Draw(screen *ebiten.Image) {
 	}
 	btnX, btnY := b.MovableImage.GetPos()
 	b.MovableImage.Draw(screen)
-	text.Draw(screen, b.Label, core.DefaultFont, int(btnX)+10, int(btnY)+30, color.White)
+	txtOpt := text.DrawOptions{}
+	txtOpt.GeoM.Translate(btnX+10, btnY+10)
+	txtOpt.ColorScale.ScaleWithColor(color.White)
+	text.Draw(screen, b.Label, core.DefaultFont, &txtOpt)
 }
 func (b *MenuButton) Update() {
 	curX, curY := ebiten.CursorPosition()
