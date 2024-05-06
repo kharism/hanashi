@@ -10,7 +10,7 @@ import (
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/joelschutz/stagehand"
 )
 
@@ -132,7 +132,7 @@ var (
 	PLAYER_POS_Y_START = 450
 )
 
-func (v *CombatScene) Load(state MyState, sm *stagehand.SceneManager[MyState]) {
+func (v *CombatScene) Load(state MyState, sm stagehand.SceneController[MyState]) {
 	v.state = state
 	v.counter = 0
 	img, _ := imgPool.GetImage(state.monsterName)
@@ -237,8 +237,12 @@ func (s *CombatScene) DrawCharacter(screen *ebiten.Image) {
 		box.Fill(color.RGBA{0, 169, 0, 255})
 		opt := ebiten.DrawImageOptions{}
 		boxPosX := float64(PLAYER_POS_X_START + idx*170)
-		text.Draw(box, c.Name, curFont, 0, 15, color.White)
-		text.Draw(box, "HP "+strconv.Itoa(c.HP), curFont, 0, 40, color.White)
+		textOpt := text.DrawOptions{}
+		textOpt.ColorScale.ScaleWithColor(color.White)
+		textOpt.GeoM.Translate(0, 0)
+		text.Draw(box, c.Name, curFont, &textOpt)
+		textOpt.GeoM.Translate(0, 24)
+		text.Draw(box, "HP "+strconv.Itoa(c.HP), curFont, &textOpt)
 		opt.GeoM.Translate(boxPosX, 450)
 		if idx == s.CurrentChrIdx {
 			box2 := ebiten.NewImage(170, 100)
@@ -258,7 +262,10 @@ func (s *CombatScene) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("OnBlink %s\nCounter %d", s.onIsBlinking, s.counter))
 
 	s.hpIcon.Draw(screen)
-	text.Draw(screen, strconv.Itoa(s.oppHp), core.DefaultFont, (768/2)-(512/8)+50, 220, color.White)
+	textOpt := text.DrawOptions{}
+	textOpt.GeoM.Translate((768/2)-(512/8)+50, 220)
+	textOpt.ColorScale.ScaleWithColor(color.White)
+	text.Draw(screen, strconv.Itoa(s.oppHp), core.DefaultFont, &textOpt)
 	// draw combat character
 	s.DrawCharacter(screen)
 	// draw combat button

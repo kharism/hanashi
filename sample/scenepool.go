@@ -17,7 +17,7 @@ type CustomScene struct {
 }
 type StateDecorator func(MyState) MyState
 
-func (v *CustomScene) Load(state MyState, sm *stagehand.SceneManager[MyState]) {
+func (v *CustomScene) Load(state MyState, sm stagehand.SceneController[MyState]) {
 	v.Scene.Events[0].Execute(v.Scene)
 }
 func (v *CustomScene) Unload() MyState {
@@ -60,7 +60,7 @@ func GetScene() *CustomScene {
 			core.NewDialogueEvent("sven", "(My living room)", nil),
 		}},
 		// 2nd event, we don't need to add new character. Just place new dialogue
-		core.NewDialogueEvent("sven", "(Finally I can lay back after some office online \n meeting )", nil),
+		core.NewDialogueEvent("sven", "(Finally I can lay back after some office\nonline meeting )", nil),
 		// 3rd event, we add new character moving from right to left into view then make sven darker using shader
 		// then put in dialogue. All in single click
 		&core.ComplexEvent{Events: []core.Event{
@@ -110,10 +110,12 @@ func GetScene() *CustomScene {
 		&core.ComplexEvent{Events: []core.Event{
 			core.NewCharacterRemoveEvent("shizuku"),
 			core.NewBGChangeEventFromPath("bg/snowvillage.jpg", core.MoveParam{0, 0, 0, 0, 1}, &imgPool, nil),
-			core.NewDialogueEvent("sven", "(me and my big mouth, this weather is more chilling than I expected)", nil),
+			core.NewDialogueEvent("sven", "(me and my big mouth, this weather is more chilling\nthan I expected)", nil),
 		}},
-		core.NewDialogueEvent("sven", "(what's this?)", nil),
-		core.NewCharacterAddEvent("slime", &core.MoveParam{200, -400, 200, 50, 10}, &core.ScaleParam{0.75, 0.75}),
+		&core.ComplexEvent{Events: []core.Event{
+			core.NewDialogueEvent("sven", "(what's this?)", nil),
+			core.NewCharacterAddEvent("slime", &core.MoveParam{200, -400, 200, 50, 10}, &core.ScaleParam{0.75, 0.75}),
+		}},
 		core.NewDialogueEvent("sven", "(wait, it's attacking me?)", nil),
 		core.NewOptionSelectEvent("Fight it?", "yes", "no"),
 		//core.NewDialogueEvent("sven", "(A room, Where we do our living)", nil),
@@ -140,7 +142,11 @@ func RunScene1(cs *CombatScene, sceneManager *stagehand.SceneManager[MyState]) *
 			// core.NewCharacterAddShaderEvent("sven", &core.ShaderParam{ShaderName: core.DARKER_SHADER}),
 			core.NewDialogueEvent("sven", "(I should run for now)", nil),
 		}},
-		core.NewCharacterMoveEvent("slime", core.MoveParam{200, 50, 800, 50, 50}),
+		&core.ComplexEvent{Events: []core.Event{
+			core.NewDialogueEvent("", "", nil), //empty the curDialog buffer
+			core.NewCharacterMoveEvent("slime", core.MoveParam{200, 50, 800, 50, 50}),
+		}},
+
 		core.NewDialogueEvent("sven", "(*pant* is it still after me?)", nil),
 	}
 	txtBgImage := ebiten.NewImage(768, 300)
@@ -150,6 +156,10 @@ func RunScene1(cs *CombatScene, sceneManager *stagehand.SceneManager[MyState]) *
 	h.StateDecorator = func(ms MyState) MyState {
 		ms.monsterName = "opp/slime.png"
 		ms.backgroundName = "bg/alley.png"
+		ms.monsterHp = 10
+		ms.CombatCharacters = []*CombatCharacter{NewCombatCharacter("sven", 9, 9).SetAtkDamage(func() int {
+			return Dice(1, 6)
+		})}
 		return ms
 	}
 	h.Done = func() {

@@ -46,7 +46,7 @@ func main() {
 			return Dice(1, 5)
 		}),
 	}
-
+	// runScene := RunScene1(combatScene, sm)
 	sm = stagehand.NewSceneManager[MyState](scene1, state)
 	gameoverScene = &GameOverScene{}
 	// set Done function to tell the scene what to do after

@@ -6,8 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/text"
-	"golang.org/x/image/font"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 // Scene is whatever happened on the screen. It has several Event that is loaded in order
@@ -27,7 +26,7 @@ type Scene struct {
 	CurCharName   string
 	CurDialog     string
 	VisibleDialog string
-	FontFace      font.Face
+	FontFace      text.Face
 
 	SceneData map[string]any
 
@@ -113,7 +112,11 @@ func (s *OptionPickerState) Draw(screen *ebiten.Image) {
 	if s.Scene.FontFace != nil {
 		curFont = s.Scene.FontFace
 	}
-	text.Draw(screen, s.Question, curFont, 0, s.OptionsYStart[0]-textOffset-textHeight+20, color.Black)
+	textOpt := text.DrawOptions{}
+	textOpt.GeoM.Translate(0, float64(s.OptionsYStart[0]-textOffset-textHeight+20))
+	textOpt.ColorScale.ScaleWithColor(color.Black)
+	// text.Draw(screen, s.Question, curFont, 0, s.OptionsYStart[0]-textOffset-textHeight+20, color.Black)
+	text.Draw(screen, s.Question, curFont, &textOpt)
 	for idx, opt := range s.Options {
 		// draw the box
 		optBg := ebiten.NewImage(width, textHeight)
@@ -122,8 +125,10 @@ func (s *OptionPickerState) Draw(screen *ebiten.Image) {
 		optDraw.GeoM.Translate(0, float64(s.OptionsYStart[idx]))
 		screen.DrawImage(optBg, &optDraw)
 		// draw the text
-
-		text.Draw(screen, opt, curFont, 0, s.OptionsYStart[idx]+20, color.Black)
+		textOpt := text.DrawOptions{}
+		textOpt.ColorScale.ScaleWithColor(color.Black)
+		textOpt.GeoM.Translate(0, float64(s.OptionsYStart[idx]+20))
+		text.Draw(screen, opt, curFont, &textOpt)
 	}
 }
 
@@ -194,13 +199,18 @@ func (g *Scene) Update() error {
 				return nil
 			} else {
 				g.Events[g.EventIndex].Execute(g)
+				// g.CurDialog = ""
 			}
+
 			g.VisibleDialog = ""
 		}
 	} else {
 		g.CurrentSubState.Update()
+		// g.CurDialog = ""
+		g.VisibleDialog = ""
 	}
 	if g.CurDialog != g.VisibleDialog {
+		// fmt.Println(g.VisibleDialog, g.CurDialog)
 		g.VisibleDialog = g.CurDialog[:len(g.VisibleDialog)+1]
 	}
 	return nil
@@ -235,9 +245,15 @@ func (g *Scene) Draw(screen *ebiten.Image) {
 		if g.FontFace != nil {
 			curFont = g.FontFace
 		}
-
-		text.Draw(screen, g.CurCharName, curFont, nameX, nameY, color.White)
-		text.Draw(screen, g.VisibleDialog, curFont, dialogueX, dialogueY, color.White)
+		textOpt1 := text.DrawOptions{}
+		textOpt1.GeoM.Translate(float64(nameX), float64(nameY))
+		textOpt1.ColorScale.ScaleWithColor(color.White)
+		text.Draw(screen, g.CurCharName, curFont, &textOpt1)
+		textOpt2 := text.DrawOptions{}
+		textOpt2.GeoM.Translate(float64(dialogueX), float64(dialogueY))
+		textOpt2.ColorScale.ScaleWithColor(color.White)
+		textOpt2.LineSpacing = 24
+		text.Draw(screen, g.VisibleDialog, curFont, &textOpt2)
 	} else {
 		g.CurrentSubState.Draw(screen)
 	}

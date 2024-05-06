@@ -16,7 +16,7 @@ type GameOverScene struct {
 	bg             *ebiten.Image
 }
 
-func (v *GameOverScene) Load(state MyState, sm *stagehand.SceneManager[MyState]) {
+func (v *GameOverScene) Load(state MyState, sm stagehand.SceneController[MyState]) {
 
 	v.gameoverImage, _ = imgPool.GetImage("bg/game_over.png")
 	v.bg = ebiten.NewImage(768, 512)
