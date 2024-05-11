@@ -73,11 +73,11 @@ func GetScene() *CustomScene {
 		core.NewDialogueEvent("shizuku", "curry or spaghetti?", nil),
 		// 5th event. Add in options for user selection. "What's for dinner?" is used as both
 		// question and the options selected will be stored in State.StateData["What's for dinner?"]
-		core.NewOptionSelectEvent("What's for dinner?", "curry", "spaghetti"),
+		core.NewOptionSelectEvent("dinner", "What's for dinner?", "curry", "spaghetti"),
 		// 6th event. Show dialogue based on answer of "What's for dinner?". We don't need to access the answer imemdiately
 		// As long as the scenedata is passed on from scene to scene we can pick up what user answers from
 		// previous scene
-		core.NewBranchingDialogueEvent("shizuku", "What's for dinner?", map[string]string{
+		core.NewBranchingDialogueEvent("shizuku", "dinner", map[string]string{
 			"curry":     "We need more potatoes and carrot.",
 			"spaghetti": "We need more garlic and basil",
 		}),
@@ -94,8 +94,8 @@ func GetScene() *CustomScene {
 		}},
 		//10th
 		core.NewDialogueEvent("shizuku", "Do you know the new location?", nil),
-		core.NewOptionSelectEvent("Ask for new store location?", "yes", "no"),
-		core.NewBranchingJumpEvent("Ask for new store location?", map[string]int{
+		core.NewOptionSelectEvent("Location", "Ask for new store location?", "yes", "no"),
+		core.NewBranchingJumpEvent("Location", map[string]int{
 			"yes": 13,
 			"no":  14,
 		}),
@@ -119,7 +119,7 @@ func GetScene() *CustomScene {
 			core.NewCharacterAddEvent("slime", &core.MoveParam{200, -400, 200, 50, 10}, &core.ScaleParam{0.75, 0.75}),
 		}},
 		core.NewDialogueEvent("sven", "(wait, it's attacking me?)", nil),
-		core.NewOptionSelectEvent("Fight it?", "yes", "no"),
+		core.NewOptionSelectEvent("Fight", "Fight it?", "yes", "no"),
 		//core.NewDialogueEvent("sven", "(A room, Where we do our living)", nil),
 
 	}
@@ -129,7 +129,7 @@ func GetScene() *CustomScene {
 	h.TxtBg = txtBgImage
 	h.SetLayouter(&h)
 	h.Done = func() {
-		if h.GetSceneData("Fight it?").(string) == "yes" {
+		if h.GetSceneData("Fight").(string) == "yes" {
 			h.StateDecorator = func(ms MyState) MyState {
 				ms.monsterName = "opp/slime.png"
 				ms.backgroundName = "bg/alley.png"

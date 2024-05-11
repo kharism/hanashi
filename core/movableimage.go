@@ -12,9 +12,10 @@ import (
 
 // an image that you can move
 type MovableImage struct {
-	image      *ebiten.Image
-	oriWidth   int
-	oriHeight  int
+	image     *ebiten.Image
+	oriWidth  int
+	oriHeight int
+	//store the current scale of the image
 	ScaleParam *ScaleParam
 	// current position
 	x float64
@@ -23,8 +24,15 @@ type MovableImage struct {
 	vx float64
 	vy float64
 	// target position if card moved
-	tx    float64
-	ty    float64
+	tx float64
+	ty float64
+
+	//scale target
+	tsx        float64
+	tsy        float64
+	vscale     float64
+	scaleSpeed float64
+
 	mutex *sync.Mutex
 	// animation stuff
 	CurrMove       *MoveAnimation
@@ -90,7 +98,10 @@ func NewMovableImage(image *ebiten.Image, param *MovableImageParams) *MovableIma
 			mov.Shader, _ = shaderPool.GetShader(param.ShaderOptions.ShaderName)
 		}
 	}
-
+	if mov.ScaleParam != nil {
+		mov.tsx = mov.ScaleParam.Sx
+		mov.tsy = mov.ScaleParam.Sy
+	}
 	return mov
 }
 
