@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"math"
 	"sync"
 	"time"
@@ -28,15 +29,15 @@ type MovableImage struct {
 	ty float64
 
 	//scale target
-	tsx        float64
-	tsy        float64
-	vscale     float64
-	scaleSpeed float64
+	tsx float64
+	tsy float64
+	vsx float64
+	vsy float64
 
 	mutex *sync.Mutex
 	// animation stuff
-	CurrMove       *MoveAnimation
-	AnimationQueue []*MoveAnimation
+	CurrMove       Animation
+	AnimationQueue []Animation
 	Shader         *ebiten.Shader
 }
 
@@ -70,6 +71,10 @@ func (e *MovableImage) GetPos() (float64, float64) {
 func (e *MovableImage) SetPos(x, y float64) {
 	e.x = x
 	e.y = y
+}
+
+func (e *MovableImage) SetImage(i *ebiten.Image) {
+	e.image = i
 }
 func (e *MovableImage) GetSize() (float64, float64) {
 	return float64(e.image.Bounds().Dx()) * e.ScaleParam.Sx, float64(e.image.Bounds().Dy()) * e.ScaleParam.Sy
@@ -113,7 +118,12 @@ type ShaderParam struct {
 	ShaderName string
 }
 
-// struct to represent movement of an image
+// Interface to apply animation to an image
+type Animation interface {
+	Apply(image *MovableImage)
+}
+
+// move animation
 type MoveAnimation struct {
 	// target x
 	tx float64
@@ -123,6 +133,42 @@ type MoveAnimation struct {
 	SleepPre  time.Duration
 	SleepPost time.Duration
 	DoneFunc  func()
+}
+
+func NewMoveAnimationFromParam(param MoveParam) *MoveAnimation {
+	return &MoveAnimation{tx: param.Tx, ty: param.Ty, Speed: param.Speed}
+}
+func (h *MoveAnimation) Apply(e *MovableImage) {
+	e.CurrMove = h
+	e.tx = h.tx
+	e.ty = h.ty
+	vx := float64(e.tx - e.x)
+	vy := float64(e.ty - e.y)
+	if vx != 0 || vy != 0 {
+		speedVector := csg.NewVector(vx, vy, 0)
+		speedVector = speedVector.Normalize().MultiplyScalar(h.Speed)
+		e.vx = speedVector.X
+		e.vy = speedVector.Y
+	} else {
+		e.vx = 0
+		e.vy = 0
+	}
+}
+
+type ScaleAnimation struct {
+	// target x
+	Tsx float64
+	// target y
+	Tsy    float64
+	SpeedX float64
+	SpeedY float64
+}
+
+func (s *ScaleAnimation) Apply(img *MovableImage) {
+	img.tsx = s.Tsx
+	img.tsy = s.Tsy
+	img.vsx = s.SpeedX
+	img.vsy = s.SpeedY
 }
 
 func (e *MovableImage) Draw(screen *ebiten.Image) {
@@ -152,7 +198,7 @@ func (e *MovableImage) Draw(screen *ebiten.Image) {
 
 }
 
-func (e *MovableImage) AddAnimation(animation ...*MoveAnimation) {
+func (e *MovableImage) AddAnimation(animation ...Animation) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 	e.AnimationQueue = append(e.AnimationQueue, animation...)
@@ -162,20 +208,21 @@ func (e *MovableImage) AddAnimation(animation ...*MoveAnimation) {
 func (e *MovableImage) ReplaceCurrentAnim(animation *MoveAnimation) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
-	e.CurrMove = animation
-	e.tx = e.CurrMove.tx
-	e.ty = e.CurrMove.ty
-	vx := float64(e.tx - e.x)
-	vy := float64(e.ty - e.y)
-	if vx != 0 || vy != 0 {
-		speedVector := csg.NewVector(vx, vy, 0)
-		speedVector = speedVector.Normalize().MultiplyScalar(e.CurrMove.Speed)
-		e.vx = speedVector.X
-		e.vy = speedVector.Y
-	} else {
-		e.vx = 0
-		e.vy = 0
-	}
+	animation.Apply(e)
+	// e.CurrMove = animation
+	// e.tx = e.CurrMove.tx
+	// e.ty = e.CurrMove.ty
+	// vx := float64(e.tx - e.x)
+	// vy := float64(e.ty - e.y)
+	// if vx != 0 || vy != 0 {
+	// 	speedVector := csg.NewVector(vx, vy, 0)
+	// 	speedVector = speedVector.Normalize().MultiplyScalar(e.CurrMove.Speed)
+	// 	e.vx = speedVector.X
+	// 	e.vy = speedVector.Y
+	// } else {
+	// 	e.vx = 0
+	// 	e.vy = 0
+	// }
 }
 
 func (e *MovableImage) Update() {
@@ -184,35 +231,45 @@ func (e *MovableImage) Update() {
 	if e.CurrMove == nil && len(e.AnimationQueue) > 0 {
 		e.CurrMove = e.AnimationQueue[0]
 		e.AnimationQueue = e.AnimationQueue[1:]
+		e.CurrMove.Apply(e)
 		// fmt.Println("animation queue", e.card.GetName(), e.CurrMove)
-		if e.CurrMove.SleepPre != 0 {
-			time.Sleep(e.CurrMove.SleepPre)
-		}
-		e.tx = e.CurrMove.tx
-		e.ty = e.CurrMove.ty
-		vx := float64(e.tx - e.x)
-		vy := float64(e.ty - e.y)
-		if vx != 0 || vy != 0 {
-			speedVector := csg.NewVector(vx, vy, 0)
-			speedVector = speedVector.Normalize().MultiplyScalar(e.CurrMove.Speed)
-			e.vx = speedVector.X
-			e.vy = speedVector.Y
-		} else {
-			e.vx = 0
-			e.vy = 0
-		}
+		// if e.CurrMove.SleepPre != 0 {
+		// 	time.Sleep(e.CurrMove.SleepPre)
+		// }
+		// e.tx = e.CurrMove.tx
+		// e.ty = e.CurrMove.ty
+		// vx := float64(e.tx - e.x)
+		// vy := float64(e.ty - e.y)
+		// if vx != 0 || vy != 0 {
+		// 	speedVector := csg.NewVector(vx, vy, 0)
+		// 	speedVector = speedVector.Normalize().MultiplyScalar(e.CurrMove.Speed)
+		// 	e.vx = speedVector.X
+		// 	e.vy = speedVector.Y
+		// } else {
+		// 	e.vx = 0
+		// 	e.vy = 0
+		// }
 
 	}
 	e.x += e.vx
 	e.y += e.vy
+	if e.ScaleParam != nil {
+		fmt.Println(e.ScaleParam, e.tsx, math.Abs(e.ScaleParam.Sx-e.tsx))
+		if math.Abs(e.ScaleParam.Sx-e.tsx) > 0.01 {
+			e.ScaleParam.Sx += e.vsx
+		}
+		if math.Abs(e.ScaleParam.Sy-e.tsy) >= 0.01 {
+			e.ScaleParam.Sy += e.vsy
+		}
+	}
 	// fmt.Println(e.x, e.y)
 	if math.Abs(float64(e.tx-e.x))+math.Abs(float64(e.ty-e.y)) < 15 {
-		if e.CurrMove != nil && e.CurrMove.DoneFunc != nil {
-			if e.CurrMove.SleepPost != 0 {
-				//time.Sleep(e.CurrMove.SleepPost)
-			}
-			e.CurrMove.DoneFunc()
-		}
+		// if e.CurrMove != nil && e.CurrMove.DoneFunc != nil {
+		// 	if e.CurrMove.SleepPost != 0 {
+		// 		//time.Sleep(e.CurrMove.SleepPost)
+		// 	}
+		// 	e.CurrMove.DoneFunc()
+		// }
 		if len(e.AnimationQueue) == 0 {
 			e.x = e.tx
 			e.y = e.ty
@@ -220,24 +277,27 @@ func (e *MovableImage) Update() {
 			e.vy = 0
 			e.CurrMove = nil
 		} else {
+
 			e.CurrMove = e.AnimationQueue[0]
 			e.AnimationQueue = e.AnimationQueue[1:]
-			if e.CurrMove.SleepPre != 0 {
-				//time.Sleep(e.CurrMove.SleepPre)
-			}
-			e.tx = e.CurrMove.tx
-			e.ty = e.CurrMove.ty
-			vx := float64(e.tx - e.x)
-			vy := float64(e.ty - e.y)
-			if vy != 0 || vx != 0 {
-				speedVector := csg.NewVector(vx, vy, 0)
-				speedVector = speedVector.Normalize().MultiplyScalar(e.CurrMove.Speed)
-				e.vx = speedVector.X
-				e.vy = speedVector.Y
-			} else {
-				e.vx = 0
-				e.vy = 0
-			}
+			e.CurrMove.Apply(e)
+
+			// if e.CurrMove.SleepPre != 0 {
+			// 	//time.Sleep(e.CurrMove.SleepPre)
+			// }
+			// e.tx = e.CurrMove.tx
+			// e.ty = e.CurrMove.ty
+			// vx := float64(e.tx - e.x)
+			// vy := float64(e.ty - e.y)
+			// if vy != 0 || vx != 0 {
+			// 	speedVector := csg.NewVector(vx, vy, 0)
+			// 	speedVector = speedVector.Normalize().MultiplyScalar(e.CurrMove.Speed)
+			// 	e.vx = speedVector.X
+			// 	e.vy = speedVector.Y
+			// } else {
+			// 	e.vx = 0
+			// 	e.vy = 0
+			// }
 
 		}
 
