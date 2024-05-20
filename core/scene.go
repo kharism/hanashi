@@ -54,6 +54,7 @@ type SubState interface {
 }
 type OptionPickerState struct {
 	Scene         *Scene
+	QId           string
 	Question      string
 	Options       []string
 	OptionsYStart []int
@@ -65,7 +66,7 @@ func (s *OptionPickerState) Update() {
 		for i := len(s.OptionsYStart) - 1; i >= 0; i-- {
 			if yCurInt > s.OptionsYStart[i] {
 				fmt.Println("Clicked", s.Options[i])
-				s.Scene.SetSceneData(s.Question, s.Options[i])
+				s.Scene.SetSceneData(s.QId, s.Options[i])
 				// s.Scene.EventIndex += 1
 				s.Scene.CurrentSubState = nil
 				pp := len(s.Scene.Events)
