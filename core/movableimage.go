@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"math"
 	"sync"
 	"time"
@@ -254,7 +253,7 @@ func (e *MovableImage) Update() {
 	e.x += e.vx
 	e.y += e.vy
 	if e.ScaleParam != nil {
-		fmt.Println(e.ScaleParam, e.tsx, math.Abs(e.ScaleParam.Sx-e.tsx))
+		// fmt.Println(e.ScaleParam, e.tsx, math.Abs(e.ScaleParam.Sx-e.tsx))
 		if math.Abs(e.ScaleParam.Sx-e.tsx) > 0.01 {
 			e.ScaleParam.Sx += e.vsx
 		}
