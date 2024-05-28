@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"math"
 	"sync"
 	"time"
@@ -52,6 +53,9 @@ type MoveParam struct {
 type ScaleParam struct {
 	Sx float64
 	Sy float64
+
+	ScaleOriginX float64
+	ScaleOriginY float64
 
 	// Ty float64
 	// Tx float64
@@ -158,9 +162,11 @@ type ScaleAnimation struct {
 	// target x
 	Tsx float64
 	// target y
-	Tsy    float64
-	SpeedX float64
-	SpeedY float64
+	Tsy     float64
+	CenterX float64
+	CenterY float64
+	SpeedX  float64
+	SpeedY  float64
 }
 
 func (s *ScaleAnimation) Apply(img *MovableImage) {
@@ -168,6 +174,11 @@ func (s *ScaleAnimation) Apply(img *MovableImage) {
 	img.tsy = s.Tsy
 	img.vsx = s.SpeedX
 	img.vsy = s.SpeedY
+	if img.ScaleParam == nil {
+		img.ScaleParam = &ScaleParam{Sx: 1, Sy: 1}
+	}
+	img.ScaleParam.ScaleOriginX = s.CenterX
+	img.ScaleParam.ScaleOriginY = s.CenterY
 }
 
 func (e *MovableImage) Draw(screen *ebiten.Image) {
@@ -176,7 +187,9 @@ func (e *MovableImage) Draw(screen *ebiten.Image) {
 	// op.GeoM.Scale(0.25, 0.25)
 	op.GeoM.Translate(0, 0)
 	if e.ScaleParam != nil {
+		op.GeoM.Translate(-e.ScaleParam.ScaleOriginX, -e.ScaleParam.ScaleOriginY)
 		op.GeoM.Scale(e.ScaleParam.Sx, e.ScaleParam.Sy)
+		op.GeoM.Translate(e.ScaleParam.ScaleOriginX, e.ScaleParam.ScaleOriginY)
 	}
 
 	op.GeoM.Translate(float64(e.x), float64(e.y))
@@ -253,13 +266,14 @@ func (e *MovableImage) Update() {
 	e.x += e.vx
 	e.y += e.vy
 	if e.ScaleParam != nil {
-		// fmt.Println(e.ScaleParam, e.tsx, math.Abs(e.ScaleParam.Sx-e.tsx))
-		if math.Abs(e.ScaleParam.Sx-e.tsx) > 0.01 {
+		fmt.Println(e.ScaleParam, e.tsx, math.Abs(e.ScaleParam.Sx-e.tsx))
+		if math.Abs(e.ScaleParam.Sx-e.tsx) >= 0.01 {
 			e.ScaleParam.Sx += e.vsx
 		}
 		if math.Abs(e.ScaleParam.Sy-e.tsy) >= 0.01 {
 			e.ScaleParam.Sy += e.vsy
 		}
+		// fmt.Println()
 	}
 	// fmt.Println(e.x, e.y)
 	if math.Abs(float64(e.tx-e.x))+math.Abs(float64(e.ty-e.y)) < 15 {
