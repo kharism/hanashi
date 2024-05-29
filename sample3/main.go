@@ -21,11 +21,13 @@ type Game struct {
 
 func (g *Game) Update() error {
 	HeartImg.Update()
+	HeartImg2.Update()
 	return nil
 }
 func (g *Game) Draw(screen *ebiten.Image) {
 	// g.Scene.Draw(screen)
 	HeartImg.Draw(screen)
+	HeartImg2.Draw(screen)
 }
 func (g *Game) Layout(width, height int) (int, int) {
 	return 640, 480
@@ -70,6 +72,7 @@ var (
 //go:embed heart.png
 var Heart []byte
 var HeartImg *core.MovableImage
+var HeartImg2 *core.MovableImage
 
 func main() {
 	ebiten.SetWindowSize(640, 480)
@@ -91,6 +94,15 @@ func main() {
 	scaleAnim := core.ScaleAnimation{Tsx: 2.0, Tsy: 2.0, SpeedX: 0.01, SpeedY: 0.01, CenterX: float64(originX), CenterY: float64(originY)}
 	// scaleAnim := &core.ScaleCenterAnim{Tsx: 5.0, Tsy: 5.0, SpeedX: 0.01, SpeedY: 0.01, OriginX: originX, OriginY: originY}
 	HeartImg.AddAnimation(&scaleAnim)
+
+	param2 := core.MovableImageParams{}
+	param2.WithMoveParam(core.MoveParam{Sx: 200, Sy: 100})
+	param2.WithRotation(&core.RotationParam{Rotation: 0, RotSpeed: 0, CenterX: float64(originX), CenterY: float64(originY)})
+	// box := ebiten.NewImage(bounds.Dx(), bounds.Dy())
+	// box.Fill(color.White)
+	HeartImg2 = core.NewMovableImage(heartImg, &param2)
+	rotAnim := core.RotationAnimation{Trot: 70, RotSpeed: 0.1}
+	HeartImg2.AddAnimation(&rotAnim)
 
 	game := &Game{}
 	// scene := Scene1(game)
