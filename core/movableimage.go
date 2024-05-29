@@ -17,6 +17,8 @@ type MovableImage struct {
 	oriHeight int
 	//store the current scale of the image
 	ScaleParam *ScaleParam
+	//store the current rotation of the image
+	RotationParam *RotationParam
 	// current position
 	x float64
 	y float64
@@ -32,6 +34,8 @@ type MovableImage struct {
 	tsy float64
 	vsx float64
 	vsy float64
+
+	rotationTarget float64
 
 	mutex *sync.Mutex
 	// animation stuff
@@ -53,12 +57,23 @@ type ScaleParam struct {
 	Sx float64
 	Sy float64
 
+	ScaleOriginX float64
+	ScaleOriginY float64
+
 	// Ty float64
 	// Tx float64
+}
+type RotationParam struct {
+	Rotation float64 //rotation in radian
+	RotSpeed float64 //rotation speed in radian/update
+
+	CenterX float64
+	CenterY float64
 }
 type MovableImageParams struct {
 	MoveParam     MoveParam
 	ScaleParam    *ScaleParam
+	RotateParam   *RotationParam
 	ShaderOptions *ShaderParam
 }
 
@@ -93,6 +108,10 @@ func (p *MovableImageParams) WithScale(param *ScaleParam) *MovableImageParams {
 	p.ScaleParam = param
 	return p
 }
+func (p *MovableImageParams) WithRotation(param *RotationParam) *MovableImageParams {
+	p.RotateParam = param
+	return p
+}
 func NewMovableImage(image *ebiten.Image, param *MovableImageParams) *MovableImage {
 	mov := &MovableImage{image: image, x: param.MoveParam.Sx, y: param.MoveParam.Sy, ScaleParam: param.ScaleParam, mutex: &sync.Mutex{}}
 	if param.ShaderOptions != nil {
@@ -105,6 +124,9 @@ func NewMovableImage(image *ebiten.Image, param *MovableImageParams) *MovableIma
 	if mov.ScaleParam != nil {
 		mov.tsx = mov.ScaleParam.Sx
 		mov.tsy = mov.ScaleParam.Sy
+	}
+	if param.RotateParam != nil {
+		mov.RotationParam = param.RotateParam
 	}
 	return mov
 }
@@ -158,9 +180,11 @@ type ScaleAnimation struct {
 	// target x
 	Tsx float64
 	// target y
-	Tsy    float64
-	SpeedX float64
-	SpeedY float64
+	Tsy     float64
+	CenterX float64
+	CenterY float64
+	SpeedX  float64
+	SpeedY  float64
 }
 
 func (s *ScaleAnimation) Apply(img *MovableImage) {
@@ -168,15 +192,40 @@ func (s *ScaleAnimation) Apply(img *MovableImage) {
 	img.tsy = s.Tsy
 	img.vsx = s.SpeedX
 	img.vsy = s.SpeedY
+	if img.ScaleParam == nil {
+		img.ScaleParam = &ScaleParam{Sx: 1, Sy: 1}
+	}
+	img.ScaleParam.ScaleOriginX = s.CenterX
+	img.ScaleParam.ScaleOriginY = s.CenterY
 }
 
+type RotationAnimation struct {
+	Trot     float64 // target rotation in radian
+	RotSpeed float64 //rotation speed in radian/tick
+
+}
+
+func (r *RotationAnimation) Apply(img *MovableImage) {
+	img.rotationTarget = r.Trot
+	if img.RotationParam == nil {
+		img.RotationParam = &RotationParam{}
+	}
+	img.RotationParam.RotSpeed = r.RotSpeed
+}
 func (e *MovableImage) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Reset()
 	// op.GeoM.Scale(0.25, 0.25)
 	op.GeoM.Translate(0, 0)
 	if e.ScaleParam != nil {
+		op.GeoM.Translate(-e.ScaleParam.ScaleOriginX, -e.ScaleParam.ScaleOriginY)
 		op.GeoM.Scale(e.ScaleParam.Sx, e.ScaleParam.Sy)
+		op.GeoM.Translate(e.ScaleParam.ScaleOriginX, e.ScaleParam.ScaleOriginY)
+	}
+	if e.RotationParam != nil {
+		op.GeoM.Translate(-e.RotationParam.CenterX, -e.RotationParam.CenterY)
+		op.GeoM.Rotate(e.RotationParam.Rotation)
+		op.GeoM.Translate(e.RotationParam.CenterX, e.RotationParam.CenterY)
 	}
 
 	op.GeoM.Translate(float64(e.x), float64(e.y))
@@ -252,13 +301,20 @@ func (e *MovableImage) Update() {
 	}
 	e.x += e.vx
 	e.y += e.vy
+
 	if e.ScaleParam != nil {
 		// fmt.Println(e.ScaleParam, e.tsx, math.Abs(e.ScaleParam.Sx-e.tsx))
-		if math.Abs(e.ScaleParam.Sx-e.tsx) > 0.01 {
+		if math.Abs(e.ScaleParam.Sx-e.tsx) >= 0.01 {
 			e.ScaleParam.Sx += e.vsx
 		}
 		if math.Abs(e.ScaleParam.Sy-e.tsy) >= 0.01 {
 			e.ScaleParam.Sy += e.vsy
+		}
+		// fmt.Println()
+	}
+	if e.RotationParam != nil {
+		if math.Abs(e.RotationParam.Rotation-e.rotationTarget) >= 0.01 {
+			e.RotationParam.Rotation += e.RotationParam.RotSpeed
 		}
 	}
 	// fmt.Println(e.x, e.y)
