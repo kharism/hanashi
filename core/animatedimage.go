@@ -20,6 +20,7 @@ type AnimatedImage struct {
 	// internal counter. Auto increase every update()
 	counter uint
 	// Move to next frame everytime counter reach this number
+	// smaller number will make the animation faster
 	Modulo int
 
 	Done func()
@@ -28,7 +29,7 @@ type AnimatedImage struct {
 func (a *AnimatedImage) Update() {
 	a.MovableImage.Update()
 	a.counter = (a.counter + 1)
-	subImageIndex := (int(a.counter) / 5) % a.FrameCount
+	subImageIndex := (int(a.counter) / a.Modulo) % a.FrameCount
 	if subImageIndex == a.FrameCount-1 {
 		if a.Done != nil {
 			a.Done()
@@ -45,7 +46,7 @@ func (e *AnimatedImage) Draw(screen *ebiten.Image) {
 	if e.ScaleParam != nil {
 		op.GeoM.Scale(e.ScaleParam.Sx, e.ScaleParam.Sy)
 	}
-	subImageIndex := (int(e.counter) / 5) % e.FrameCount
+	subImageIndex := (int(e.counter) / e.Modulo) % e.FrameCount
 	subImageStartX := e.SubImageStartX + subImageIndex*e.SubImageWidth
 	subImageStartY := e.SubImageStartY
 

@@ -57,7 +57,7 @@ func GetScene() *CustomScene {
 		core.NewBGChangeEventFromPath("bg/livingroom.png", core.MoveParam{0, 0, -30, 0, 1}, &imgPool, &core.ShaderParam{ShaderName: core.GRAYSCALE_SHADER}),
 		// 1st event, create complex event compromised of add character and dialogue
 		&core.ComplexEvent{Events: []core.Event{
-			core.NewCharacterAddEvent("sven", &core.MoveParam{-100, 200, 0, 200, 10}, &core.ScaleParam{0.5, 0.5}),
+			core.NewCharacterAddEvent("sven", &core.MoveParam{-100, 200, 0, 200, 10}, &core.ScaleParam{0.5, 0.5, 0, 0}),
 			// core.NewCharacterAddShaderEvent("sven", &core.ShaderParam{ShaderName: core.DARKER_SHADER}),
 			core.NewDialogueEvent("sven", "(My living room)", nil),
 		}},
@@ -66,7 +66,7 @@ func GetScene() *CustomScene {
 		// 3rd event, we add new character moving from right to left into view then make sven darker using shader
 		// then put in dialogue. All in single click
 		&core.ComplexEvent{Events: []core.Event{
-			core.NewCharacterAddEvent("shizuku", &core.MoveParam{800, 200, 480, 200, 10}, &core.ScaleParam{0.75, 0.75}),
+			core.NewCharacterAddEvent("shizuku", &core.MoveParam{800, 200, 480, 200, 10}, &core.ScaleParam{0.75, 0.75, 0, 0}),
 			core.NewCharacterAddShaderEvent("sven", &core.ShaderParam{ShaderName: core.DARKER_SHADER}),
 			core.NewDialogueEvent("shizuku", "Honey, What do you want for dinner?", nil),
 		}},
@@ -116,7 +116,7 @@ func GetScene() *CustomScene {
 		}},
 		&core.ComplexEvent{Events: []core.Event{
 			core.NewDialogueEvent("sven", "(what's this?)", nil),
-			core.NewCharacterAddEvent("slime", &core.MoveParam{200, -400, 200, 50, 10}, &core.ScaleParam{0.75, 0.75}),
+			core.NewCharacterAddEvent("slime", &core.MoveParam{200, -400, 200, 50, 10}, &core.ScaleParam{0.75, 0.75, 0, 0}),
 		}},
 		core.NewDialogueEvent("sven", "(wait, it's attacking me?)", nil),
 		core.NewOptionSelectEvent("Fight", "Fight it?", "yes", "no"),
@@ -156,8 +156,8 @@ func RunScene1(cs *CombatScene) *CustomScene {
 	h.Scene.Events = []core.Event{
 		&core.ComplexEvent{Events: []core.Event{
 			core.NewBGChangeEventFromPath("bg/snowvillage.jpg", core.MoveParam{0, 0, 0, 0, 1}, &imgPool, nil),
-			core.NewCharacterAddEvent("sven", &core.MoveParam{0, 200, 0, 200, 10}, &core.ScaleParam{0.5, 0.5}),
-			core.NewCharacterAddEvent("slime", &core.MoveParam{200, 50, 200, 50, 10}, &core.ScaleParam{0.75, 0.75}),
+			core.NewCharacterAddEvent("sven", &core.MoveParam{0, 200, 0, 200, 10}, &core.ScaleParam{0.5, 0.5, 0, 0}),
+			core.NewCharacterAddEvent("slime", &core.MoveParam{200, 50, 200, 50, 10}, &core.ScaleParam{0.75, 0.75, 0, 0}),
 			// core.NewCharacterAddShaderEvent("sven", &core.ShaderParam{ShaderName: core.DARKER_SHADER}),
 			core.NewDialogueEvent("sven", "(I should run for now)", nil),
 		}},
