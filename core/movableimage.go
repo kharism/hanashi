@@ -159,6 +159,14 @@ type MoveAnimation struct {
 func NewMoveAnimationFromParam(param MoveParam) *MoveAnimation {
 	return &MoveAnimation{tx: param.Tx, ty: param.Ty, Speed: param.Speed}
 }
+func (m *MoveAnimation) SetSleepPost(dur time.Duration) *MoveAnimation {
+	m.SleepPost = dur
+	return m
+}
+func (m *MoveAnimation) SetSleepPre(dur time.Duration) *MoveAnimation {
+	m.SleepPre = dur
+	return m
+}
 func (h *MoveAnimation) Apply(e *MovableImage) {
 	e.CurrMove = h
 	e.tx = h.tx
@@ -318,7 +326,7 @@ func (e *MovableImage) Update() {
 		}
 	}
 	// fmt.Println(e.x, e.y)
-	if math.Abs(float64(e.tx-e.x))+math.Abs(float64(e.ty-e.y)) < 15 {
+	if math.Abs(float64(e.tx-e.x))+math.Abs(float64(e.ty-e.y)) < 5 {
 		// if e.CurrMove != nil && e.CurrMove.DoneFunc != nil {
 		// 	if e.CurrMove.SleepPost != 0 {
 		// 		//time.Sleep(e.CurrMove.SleepPost)
