@@ -52,6 +52,21 @@ func (s *CharacterMoveEvent) Execute(scene *Scene) {
 	}
 }
 
+type CharacterComplexMoveEvent struct {
+	Name           string
+	AnimationQueue []Animation
+}
+
+func (s *CharacterComplexMoveEvent) Execute(scene *Scene) {
+	for _, c := range scene.ViewableCharacters {
+		if c.Name == s.Name {
+			for _, ma := range s.AnimationQueue {
+				c.Img.AddAnimation(ma)
+			}
+		}
+	}
+}
+
 type CharacterAddShaderEvent struct {
 	Name   string
 	Shader *ebiten.Shader
