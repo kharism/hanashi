@@ -42,6 +42,7 @@ type MovableImage struct {
 	CurrMove       Animation
 	AnimationQueue []Animation
 	Shader         *ebiten.Shader
+	Done           func()
 }
 
 type MoveParam struct {
@@ -339,6 +340,9 @@ func (e *MovableImage) Update() {
 			e.vx = 0
 			e.vy = 0
 			e.CurrMove = nil
+			if e.Done != nil {
+				e.Done()
+			}
 		} else {
 
 			e.CurrMove = e.AnimationQueue[0]
