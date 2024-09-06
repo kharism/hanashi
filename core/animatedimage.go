@@ -21,9 +21,9 @@ type AnimatedImage struct {
 	counter uint
 	// Move to next frame everytime counter reach this number
 	// smaller number will make the animation faster
-	Modulo int
-
-	Done func()
+	Modulo         int
+	FlipHorizontal bool
+	Done           func()
 }
 
 func (a *AnimatedImage) Update() {
@@ -55,6 +55,11 @@ func (e *AnimatedImage) Draw(screen *ebiten.Image) {
 
 	subImage := e.image.SubImage(image.Rect(subImageStartX, subImageStartY, subImageEndX, subImageEndY))
 	ebitenSubImg := ebiten.NewImageFromImage(subImage)
+	if e.FlipHorizontal {
+		op.GeoM.Scale(-1, 1)
+		bound := subImage.Bounds()
+		op.GeoM.Translate(float64(bound.Dx()), 0)
+	}
 	op.GeoM.Translate(float64(e.x), float64(e.y))
 	if e.Shader != nil {
 		opts := &ebiten.DrawRectShaderOptions{}
