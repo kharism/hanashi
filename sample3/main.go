@@ -22,12 +22,14 @@ type Game struct {
 func (g *Game) Update() error {
 	HeartImg.Update()
 	HeartImg2.Update()
+	HeartImg3.Update()
 	return nil
 }
 func (g *Game) Draw(screen *ebiten.Image) {
 	// g.Scene.Draw(screen)
 	HeartImg.Draw(screen)
 	HeartImg2.Draw(screen)
+	HeartImg3.Draw(screen)
 }
 func (g *Game) Layout(width, height int) (int, int) {
 	return 640, 480
@@ -73,6 +75,7 @@ var (
 var Heart []byte
 var HeartImg *core.MovableImage
 var HeartImg2 *core.MovableImage
+var HeartImg3 *core.MovableImage
 
 func main() {
 	ebiten.SetWindowSize(640, 480)
@@ -103,6 +106,17 @@ func main() {
 	HeartImg2 = core.NewMovableImage(heartImg, &param2)
 	rotAnim := core.RotationAnimation{Trot: 70, RotSpeed: 0.1}
 	HeartImg2.AddAnimation(&rotAnim)
+
+	// try to move zig-zag
+	param3 := core.MovableImageParams{}
+	param2.WithMoveParam(core.MoveParam{Sx: 300, Sy: 100})
+	HeartImg3 = core.NewMovableImage(heartImg, &param3)
+	animationZigZag := []core.Animation{
+		core.NewMoveAnimationFromParam(core.MoveParam{Tx: 400, Ty: 200, Speed: 5}),
+		core.NewMoveAnimationFromParam(core.MoveParam{Tx: 300, Ty: 300, Speed: 5}),
+		core.NewMoveAnimationFromParam(core.MoveParam{Tx: 400, Ty: 400, Speed: 5}),
+	}
+	HeartImg3.AddAnimation(animationZigZag...)
 
 	game := &Game{}
 	// scene := Scene1(game)
