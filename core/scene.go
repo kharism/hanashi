@@ -30,6 +30,8 @@ type Scene struct {
 
 	SceneData map[string]any
 
+	AudioInterface AudioInterface
+
 	//characters/sprite stuff
 	// Characters used in the scene
 	Characters []*Character
@@ -235,7 +237,14 @@ func IsClickedOrTap() (bool, int, int) {
 	return false, posX, posY
 }
 
+type KeyboardNext func() bool
+
+var DetectKeyboardNext KeyboardNext
+
 func (g *Scene) Update() error {
+	if g.AudioInterface != nil {
+		g.AudioInterface.Update()
+	}
 
 	g.CurrentBg.Update()
 	for _, c := range g.ViewableCharacters {
@@ -243,7 +252,7 @@ func (g *Scene) Update() error {
 	}
 	if g.CurrentSubState == nil {
 		clicked, _, _ := IsClickedOrTap()
-		if clicked {
+		if clicked || (DetectKeyboardNext != nil && DetectKeyboardNext()) {
 			g.EventIndex += 1
 			if g.EventIndex >= len(g.Events) {
 				g.Done()

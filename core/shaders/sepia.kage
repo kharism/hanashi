@@ -40,6 +40,6 @@ package main
         green := (gr * color.r) + (gb * color.b) + (gg * color.g) + (ga * color.a);
         blue := (br * color.r) + (bb * color.b) + (bg * color.g) + (ba * color.a);
 
-		return vec4(red,green,blue,1.0)
+		return vec4(red,green,blue,color.a)
 	}
 
