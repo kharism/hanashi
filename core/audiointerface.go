@@ -39,6 +39,9 @@ const (
 
 func init() {
 	audioContext = audio.NewContext(sampleRate)
+	if audioContext == nil {
+		audioContext = audio.CurrentContext()
+	}
 }
 
 type DefaultAudioInterface struct {
@@ -55,6 +58,9 @@ type DefaultAudioInterface struct {
 	playSfx   bool
 }
 
+func (p *DefaultAudioInterface) GetPlayer() *audio.Player {
+	return p.audioPlayer
+}
 func (p *DefaultAudioInterface) Close() error {
 	return p.audioPlayer.Close()
 }
@@ -123,7 +129,7 @@ func (p *DefaultAudioInterface) PlayBgm(audio []byte, format MusicType) {
 func (p *DefaultAudioInterface) StopBgm() {
 	p.audioPlayer.Pause()
 }
-func NewDefaultAudioInterfacer() (AudioInterface, error) {
+func NewDefaultAudioInterfacer() (*DefaultAudioInterface, error) {
 	type audioStream interface {
 		io.ReadSeeker
 		Length() int64
