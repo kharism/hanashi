@@ -1,10 +1,14 @@
 package core
 
 import (
+	"bytes"
 	"fmt"
 	"image/color"
 
+	_ "embed"
+
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
@@ -58,6 +62,7 @@ type OptionPickerState struct {
 	Scene         *Scene
 	QId           string
 	Question      string
+	curoptions    int
 	Options       []string
 	OptionsYStart []int
 }
@@ -81,6 +86,30 @@ func (s *OptionPickerState) Update() {
 
 				break
 			}
+		}
+	}
+	if inpututil.IsKeyJustReleased(ebiten.KeyDown) {
+		s.curoptions += 1
+		if s.curoptions > len(s.Options) {
+			s.curoptions -= 1
+		}
+	}
+	if inpututil.IsKeyJustReleased(ebiten.KeyUp) {
+		s.curoptions -= 1
+		if s.curoptions < 0 {
+			s.curoptions += 1
+		}
+	}
+	if DetectKeyboardNext != nil && DetectKeyboardNext() {
+		fmt.Println("Pick through keyboard", s.Options[s.curoptions])
+		s.Scene.SetSceneData(s.QId, s.Options[s.curoptions])
+		s.Scene.CurrentSubState = nil
+		pp := len(s.Scene.Events)
+		if s.Scene.EventIndex == pp-1 {
+			s.Scene.Done()
+		} else {
+			s.Scene.EventIndex += 1
+			s.Scene.Events[s.Scene.EventIndex].Execute(s.Scene)
 		}
 	}
 }
@@ -127,11 +156,20 @@ func (s *OptionPickerState) Draw(screen *ebiten.Image) {
 		optDraw := ebiten.DrawImageOptions{}
 		optDraw.GeoM.Translate(0, float64(s.OptionsYStart[idx]))
 		screen.DrawImage(optBg, &optDraw)
+		addDist := 0.0
+		//draw cursor if keyboard input is there
+		if DetectKeyboardNext != nil && idx == s.curoptions {
+			optDraw := ebiten.DrawImageOptions{}
+			optDraw.GeoM.Translate(0, float64(s.OptionsYStart[idx]))
+			screen.DrawImage(Cursor, &optDraw)
+			addDist += 60
+		}
 		// draw the text
 		textOpt := text.DrawOptions{}
 		textOpt.ColorScale.ScaleWithColor(color.Black)
-		textOpt.GeoM.Translate(0, float64(s.OptionsYStart[idx]+20))
+		textOpt.GeoM.Translate(0+addDist, float64(s.OptionsYStart[idx]+20))
 		text.Draw(screen, opt, curFont, &textOpt)
+
 	}
 }
 
@@ -194,14 +232,19 @@ type Pos struct {
 	Y float64
 }
 
+//go:embed assets/cursor.png
+var cursor []byte
 var (
 	TouchIDs []ebiten.TouchID
 	TouchPos map[ebiten.TouchID]*Pos
+	Cursor   *ebiten.Image
 )
 
 func init() {
 	TouchIDs = []ebiten.TouchID{}
 	TouchPos = map[ebiten.TouchID]*Pos{}
+	imgReader := bytes.NewReader(cursor)
+	Cursor, _, _ = ebitenutil.NewImageFromReader(imgReader)
 }
 
 // return whether a click or tap is happened, and its location if it happened
