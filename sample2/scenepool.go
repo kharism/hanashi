@@ -17,7 +17,7 @@ func Scene1(layouter core.GetLayouter) *core.Scene {
 	scene.Events = []core.Event{
 		core.NewBGChangeEventFromPath("../sample/bg/village.png", core.MoveParam{Sx: 0, Sy: 0, Tx: 0, Ty: -200, Speed: 1}, &imgPool, nil),
 		&core.ComplexEvent{Events: []core.Event{
-			core.NewCharacterAddEvent("sven", &core.MoveParam{-100, 200, 0, 200, 10}, &core.ScaleParam{0.4, 0.4, 0, 0}),
+			core.NewCharacterAddEvent("sven", core.MoveParam{-100, 200, 0, 200, 10}, &core.ScaleParam{0.4, 0.4, 0, 0}),
 			// core.NewCharacterAddShaderEvent("sven", &core.ShaderParam{ShaderName: core.DARKER_SHADER}),
 			core.NewDialogueEvent("sven", "(What a wonderful scenery)", nil),
 		}},

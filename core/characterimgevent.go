@@ -4,7 +4,7 @@ import "github.com/hajimehoshi/ebiten/v2"
 
 type CharacterViewEvent struct {
 	Name       string
-	MoveParam  *MoveParam
+	MoveParam  MoveParam
 	ScaleParam *ScaleParam
 }
 
@@ -12,7 +12,7 @@ type CharacterViewEvent struct {
 // registered on characters field on scene
 // moveParam determine how the character should get into scene
 // scaleParam determine how
-func NewCharacterAddEvent(name string, moveParam *MoveParam, scaleParam *ScaleParam) Event {
+func NewCharacterAddEvent(name string, moveParam MoveParam, scaleParam *ScaleParam) Event {
 	return &CharacterViewEvent{name, moveParam, scaleParam}
 }
 func (s *CharacterViewEvent) Execute(Scene *Scene) {

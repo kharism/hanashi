@@ -198,7 +198,7 @@ func (g *Scene) SetLayouter(getLayouter GetLayouter) {
 }
 
 // copy Character from Character to ViewableCharacter
-func (g *Scene) AddViewableCharacters(name string, moveParam *MoveParam, scaleParam *ScaleParam) {
+func (g *Scene) AddViewableCharacters(name string, moveParam MoveParam, scaleParam *ScaleParam) {
 	for _, c := range g.Characters {
 		if c.Name == name {
 			c.Img.x = moveParam.Sx
