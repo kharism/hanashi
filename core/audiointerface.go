@@ -21,7 +21,9 @@ type AudioInterface interface {
 	// this gets called in update function
 	Update() error
 	// use this to play short sfx
+	// sfx name is the 'id' of the sfx so we can stop it using StopSfx function
 	PlaySfx(audio []byte, format MusicType, sfxname string)
+	// stop sfxname
 	StopSfx(sfxname string)
 }
 type MusicType int
