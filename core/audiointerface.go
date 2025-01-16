@@ -21,8 +21,8 @@ type AudioInterface interface {
 	// this gets called in update function
 	Update() error
 	// use this to play short sfx
-	PlaySfx(audio []byte, format MusicType)
-	// StopSfx()
+	PlaySfx(audio []byte, format MusicType, sfxname string)
+	StopSfx(sfxname string)
 }
 type MusicType int
 
@@ -44,15 +44,21 @@ func init() {
 	}
 }
 
+type sfxItem struct {
+	Key  string
+	data []byte
+}
 type DefaultAudioInterface struct {
 	audioContext *audio.Context
 	audioPlayer  *audio.Player
 	current      time.Duration
+	loopBgm      bool
 	// total        time.Duration
-	seBytes []byte
-	seCh    chan []byte
+	seBytes sfxItem
+	seCh    chan sfxItem
 
 	volume128 int
+	sfxMaps   map[string]*audio.Player
 
 	musicType MusicType
 	playSfx   bool
@@ -74,7 +80,7 @@ func (p *DefaultAudioInterface) Update() error {
 		// p.seCh = nil
 	default:
 	}
-	if !p.audioPlayer.IsPlaying() {
+	if p.loopBgm && !p.audioPlayer.IsPlaying() {
 		p.audioPlayer.Rewind()
 		p.audioPlayer.Play()
 	}
@@ -82,7 +88,7 @@ func (p *DefaultAudioInterface) Update() error {
 	return nil
 }
 func (p *DefaultAudioInterface) ShouldPlaySE() bool {
-	if p.seBytes == nil {
+	if p.seBytes.data == nil {
 		// Bytes for the SE is not loaded yet.
 		return false
 	}
@@ -94,9 +100,10 @@ func (p *DefaultAudioInterface) PlaySEIfNeeded() {
 	if !p.ShouldPlaySE() {
 		return
 	}
-	sePlayer := p.audioContext.NewPlayerFromBytes(p.seBytes)
+	sePlayer := p.audioContext.NewPlayerFromBytes(p.seBytes.data)
 	sePlayer.Play()
-	p.seBytes = nil
+	p.sfxMaps[p.seBytes.Key] = sePlayer
+	p.seBytes.data = nil
 }
 func (p *DefaultAudioInterface) PlayBgm(audio []byte, format MusicType) {
 	// var b []byte
@@ -128,6 +135,8 @@ func (p *DefaultAudioInterface) PlayBgm(audio []byte, format MusicType) {
 }
 func (p *DefaultAudioInterface) StopBgm() {
 	p.audioPlayer.Pause()
+	p.loopBgm = false
+	// p.audioPlayer.Close()
 }
 func NewDefaultAudioInterfacer() (*DefaultAudioInterface, error) {
 	type audioStream interface {
@@ -151,10 +160,12 @@ func NewDefaultAudioInterfacer() (*DefaultAudioInterface, error) {
 	player := &DefaultAudioInterface{
 		audioContext: audioContext,
 		audioPlayer:  p,
+		sfxMaps:      make(map[string]*audio.Player),
 		// total:        time.Second * time.Duration(s.Length()) / bytesPerSample / sampleRate,
 		volume128: 2,
-		seCh:      make(chan []byte, 100),
-		seBytes:   []byte{},
+		seCh:      make(chan sfxItem, 100),
+		seBytes:   sfxItem{},
+		loopBgm:   true,
 		// musicType:    musicType,
 	}
 	// if player.total == 0 {
@@ -165,7 +176,12 @@ func NewDefaultAudioInterfacer() (*DefaultAudioInterface, error) {
 
 	return player, nil
 }
-func (p *DefaultAudioInterface) PlaySfx(audio []byte, format MusicType) {
+func (p *DefaultAudioInterface) StopSfx(sfxname string) {
+	if pl, ok := p.sfxMaps[sfxname]; ok {
+		pl.Pause()
+	}
+}
+func (p *DefaultAudioInterface) PlaySfx(audio []byte, format MusicType, sfxname string) {
 	go func() {
 		var b []byte
 		var err error
@@ -192,7 +208,7 @@ func (p *DefaultAudioInterface) PlaySfx(audio []byte, format MusicType) {
 			log.Fatal(err)
 			return
 		}
-		p.seCh <- b
+		p.seCh <- sfxItem{data: b, Key: sfxname}
 	}()
 
 }
