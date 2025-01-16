@@ -132,6 +132,7 @@ func (p *DefaultAudioInterface) PlayBgm(audio []byte, format MusicType) {
 	}
 	p.audioPlayer = pl
 	p.audioPlayer.Play()
+	p.loopBgm = true
 }
 func (p *DefaultAudioInterface) StopBgm() {
 	p.audioPlayer.Pause()
@@ -179,6 +180,7 @@ func NewDefaultAudioInterfacer() (*DefaultAudioInterface, error) {
 func (p *DefaultAudioInterface) StopSfx(sfxname string) {
 	if pl, ok := p.sfxMaps[sfxname]; ok {
 		pl.Pause()
+		delete(p.sfxMaps, sfxname)
 	}
 }
 func (p *DefaultAudioInterface) PlaySfx(audio []byte, format MusicType, sfxname string) {
