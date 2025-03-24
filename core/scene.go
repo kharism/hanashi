@@ -288,8 +288,10 @@ func (g *Scene) Update() error {
 	if g.AudioInterface != nil {
 		g.AudioInterface.Update()
 	}
+	if g.CurrentBg != nil {
+		g.CurrentBg.Update()
+	}
 
-	g.CurrentBg.Update()
 	for _, c := range g.ViewableCharacters {
 		c.Img.Update()
 	}
