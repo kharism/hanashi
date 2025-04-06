@@ -58,4 +58,12 @@ scene.Done = func() {
 		os.Exit(0)
 	}
 ```
-The full example of this example is in sample2 directory. Sample directory is for more complex example where we use multiple scene, have scene transition, and dialogue option 
+The full example of this example is in sample2 directory. Sample directory is for more complex example where we use multiple scene, have scene transition, and dialogue option
+
+## Example of my game that uses Hanashi
+
+[RogueSolitaire](https://kharism.itch.io/roguesolitaire)
+
+[GrimoireGunner](https://kharism.itch.io/grimoiregunner)
+
+[Solo Dev.Ops](https://kharism.itch.io/solodevops)
