@@ -36,6 +36,7 @@ type MovableImage struct {
 	vsy float64
 
 	rotationTarget float64
+	prevDist       float64
 
 	mutex *sync.Mutex
 	// animation stuff
@@ -114,21 +115,28 @@ func (p *MovableImageParams) WithRotation(param *RotationParam) *MovableImagePar
 	return p
 }
 func NewMovableImage(image *ebiten.Image, param *MovableImageParams) *MovableImage {
-	mov := &MovableImage{image: image, x: param.MoveParam.Sx, y: param.MoveParam.Sy, ScaleParam: param.ScaleParam, mutex: &sync.Mutex{}}
-	if param.ShaderOptions != nil {
-		if param.ShaderOptions.Shader != nil {
-			mov.Shader = param.ShaderOptions.Shader
-		} else {
-			mov.Shader, _ = shaderPool.GetShader(param.ShaderOptions.ShaderName)
+	var mov *MovableImage
+	if param != nil {
+		mov = &MovableImage{image: image, x: param.MoveParam.Sx, y: param.MoveParam.Sy, ScaleParam: param.ScaleParam, mutex: &sync.Mutex{}}
+		if param.ShaderOptions != nil {
+			if param.ShaderOptions.Shader != nil {
+				mov.Shader = param.ShaderOptions.Shader
+			} else {
+				mov.Shader, _ = shaderPool.GetShader(param.ShaderOptions.ShaderName)
+			}
 		}
+		if mov.ScaleParam != nil {
+			mov.tsx = mov.ScaleParam.Sx
+			mov.tsy = mov.ScaleParam.Sy
+		}
+		if param.RotateParam != nil {
+			mov.RotationParam = param.RotateParam
+		}
+	} else {
+		mov = &MovableImage{image: image, mutex: &sync.Mutex{}}
 	}
-	if mov.ScaleParam != nil {
-		mov.tsx = mov.ScaleParam.Sx
-		mov.tsy = mov.ScaleParam.Sy
-	}
-	if param.RotateParam != nil {
-		mov.RotationParam = param.RotateParam
-	}
+
+	mov.prevDist = math.MaxFloat64
 	return mov
 }
 
@@ -170,13 +178,16 @@ func (m *MoveAnimation) SetSleepPre(dur time.Duration) *MoveAnimation {
 }
 func (h *MoveAnimation) Apply(e *MovableImage) {
 	e.CurrMove = h
+	e.prevDist = math.MaxFloat64
 	e.tx = h.tx
 	e.ty = h.ty
 	vx := float64(e.tx - e.x)
 	vy := float64(e.ty - e.y)
 	if vx != 0 || vy != 0 {
 		speedVector := csg.NewVector(vx, vy, 0)
-		speedVector = speedVector.Normalize().MultiplyScalar(h.Speed)
+		if h.Speed != 0 {
+			speedVector = speedVector.Normalize().MultiplyScalar(h.Speed)
+		}
 		e.vx = speedVector.X
 		e.vy = speedVector.Y
 	} else {
@@ -266,6 +277,7 @@ func (e *MovableImage) ReplaceCurrentAnim(animation *MoveAnimation) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 	animation.Apply(e)
+	e.prevDist = math.MaxFloat64
 	// e.CurrMove = animation
 	// e.tx = e.CurrMove.tx
 	// e.ty = e.CurrMove.ty
@@ -289,6 +301,7 @@ func (e *MovableImage) Update() {
 		e.CurrMove = e.AnimationQueue[0]
 		e.AnimationQueue = e.AnimationQueue[1:]
 		e.CurrMove.Apply(e)
+		e.prevDist = math.MaxFloat64
 		// fmt.Println("animation queue", e.card.GetName(), e.CurrMove)
 		// if e.CurrMove.SleepPre != 0 {
 		// 	time.Sleep(e.CurrMove.SleepPre)
@@ -327,7 +340,8 @@ func (e *MovableImage) Update() {
 		}
 	}
 	// fmt.Println(e.x, e.y)
-	if math.Abs(float64(e.tx-e.x))+math.Abs(float64(e.ty-e.y)) < 5 {
+	hh := math.Abs(float64(e.tx-e.x)) + math.Abs(float64(e.ty-e.y))
+	if hh > e.prevDist {
 		// if e.CurrMove != nil && e.CurrMove.DoneFunc != nil {
 		// 	if e.CurrMove.SleepPost != 0 {
 		// 		//time.Sleep(e.CurrMove.SleepPost)
@@ -368,5 +382,7 @@ func (e *MovableImage) Update() {
 
 		}
 
+	} else {
+		e.prevDist = hh
 	}
 }
