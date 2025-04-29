@@ -55,7 +55,9 @@ func NewDialogueEvent(name, dialogue string, fontface text.Face) Event {
 	return &DialogueEvent{Name: name, Dialogue: dialogue, FontFace: fontface}
 }
 func (b *DialogueEvent) Execute(scene *Scene) {
-	scene.FontFace = b.FontFace
+	if b.FontFace != nil {
+		scene.FontFace = b.FontFace
+	}
 	scene.CurCharName = b.Name
 	scene.CurDialog = b.Dialogue
 }
