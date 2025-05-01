@@ -54,6 +54,8 @@ func NewScene() *Scene {
 	return &Scene{Events: []Event{}, Characters: []*Character{}, SceneData: map[string]any{}}
 }
 
+// An interface to the Scene. The Scene will draw either draw its substate
+// or dialog scene
 type SubState interface {
 	Draw(screen *ebiten.Image)
 	Update()
@@ -183,6 +185,7 @@ type GetLayouter interface {
 	GetTextPosition() (x, y int)
 }
 
+// Set text background. Unused
 type TxtBgGetter interface {
 	GetTxtBg() *ebiten.Image
 }
@@ -248,9 +251,9 @@ func init() {
 }
 
 // return whether a click or tap is happened, and its location if it happened
-func IsClickedOrTap() (bool, int, int) {
-	posX := -1
-	posY := -1
+func IsClickedOrTap() (res bool, posX int, posY int) {
+	posX = -1
+	posY = -1
 	mouseReleased := inpututil.IsMouseButtonJustReleased(ebiten.MouseButton0)
 	if mouseReleased {
 		posX, posY = ebiten.CursorPosition()
@@ -280,8 +283,11 @@ func IsClickedOrTap() (bool, int, int) {
 	return false, posX, posY
 }
 
+// a signature function to detect keyboard input to proceed to next
+// item in scenario list.
 type KeyboardNext func() bool
 
+// The global function to detect KeyboardNext
 var DetectKeyboardNext KeyboardNext
 
 func (g *Scene) Update() error {
