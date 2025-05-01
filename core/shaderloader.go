@@ -51,6 +51,8 @@ func GetShaderPool() *ShaderPool {
 	}
 	return shaderPool
 }
+
+// Register shader first so we can use it later on
 func (s *ShaderPool) RegisterShader(name string, shader *ebiten.Shader) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()

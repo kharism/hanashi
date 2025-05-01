@@ -92,7 +92,7 @@ func (e *MovableImage) SetPos(x, y float64) {
 func (e *MovableImage) SetImage(i *ebiten.Image) {
 	e.image = i
 }
-func (e *MovableImage) GetSize() (float64, float64) {
+func (e *MovableImage) GetSize() (width float64, height float64) {
 	return float64(e.image.Bounds().Dx()) * e.ScaleParam.Sx, float64(e.image.Bounds().Dy()) * e.ScaleParam.Sy
 }
 func NewMovableImageParams() *MovableImageParams {
@@ -165,13 +165,18 @@ type MoveAnimation struct {
 	DoneFunc  func()
 }
 
+// create new move animation using move parameter
 func NewMoveAnimationFromParam(param MoveParam) *MoveAnimation {
 	return &MoveAnimation{tx: param.Tx, ty: param.Ty, Speed: param.Speed}
 }
+
+// wait time after move animation, unused
 func (m *MoveAnimation) SetSleepPost(dur time.Duration) *MoveAnimation {
 	m.SleepPost = dur
 	return m
 }
+
+// wait time before move animation, unused
 func (m *MoveAnimation) SetSleepPre(dur time.Duration) *MoveAnimation {
 	m.SleepPre = dur
 	return m
@@ -196,6 +201,7 @@ func (h *MoveAnimation) Apply(e *MovableImage) {
 	}
 }
 
+// Scaling animation
 type ScaleAnimation struct {
 	// target x
 	Tsx float64
@@ -219,6 +225,7 @@ func (s *ScaleAnimation) Apply(img *MovableImage) {
 	img.ScaleParam.ScaleOriginY = s.CenterY
 }
 
+// rotation animation
 type RotationAnimation struct {
 	Trot     float64 // target rotation in radian
 	RotSpeed float64 //rotation speed in radian/tick
