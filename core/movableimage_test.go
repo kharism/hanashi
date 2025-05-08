@@ -52,6 +52,20 @@ func TestMovement2(t *testing.T) {
 	}
 }
 
+func TestReplaceMovement(t *testing.T) {
+	j := NewMovableImage(nil, NewMovableImageParams().WithMoveParam(MoveParam{Sx: 10, Sy: 10}))
+	j.AddAnimation(NewMoveAnimationFromParam(MoveParam{Tx: 30, Ty: 10, Speed: 5}))
+	j.Update()
+	PosX, _ := j.GetPos()
+	move2nd := NewMoveAnimationFromParam(MoveParam{Tx: PosX, Ty: 20, Speed: 5})
+	j.ReplaceCurrentAnim(move2nd)
+	j.Update()
+	_, PosY := j.GetPos()
+	if PosY != 15 {
+		t.FailNow()
+	}
+}
+
 func TestScale(t *testing.T) {
 	j := NewMovableImage(nil, NewMovableImageParams().WithMoveParam(MoveParam{Sx: 10, Sy: 10}))
 	j.AddAnimation(&ScaleAnimation{Tsx: 1.2, Tsy: 1.2, SpeedX: 0.01, SpeedY: 0.01})
