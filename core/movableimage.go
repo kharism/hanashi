@@ -81,7 +81,8 @@ type MovableImageParams struct {
 	ShaderOptions *ShaderParam
 }
 
-func (e *MovableImage) GetPos() (float64, float64) {
+// return posX, posY
+func (e *MovableImage) GetPos() (posX, posY float64) {
 	return e.x, e.y
 }
 
