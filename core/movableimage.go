@@ -47,18 +47,20 @@ type MovableImage struct {
 }
 
 type MoveParam struct {
+	// Start X and Y position of the image
 	Sx float64
 	Sy float64
+	// Target X and Y position of the image
 	Tx float64
 	Ty float64
-
+	// The speed of the image, it is per update() tick, not per second
 	Speed float64
 }
 
 type ScaleParam struct {
 	Sx float64
 	Sy float64
-
+	// origin point for scale
 	ScaleOriginX float64
 	ScaleOriginY float64
 
@@ -79,7 +81,8 @@ type MovableImageParams struct {
 	ShaderOptions *ShaderParam
 }
 
-func (e *MovableImage) GetPos() (float64, float64) {
+// return posX, posY
+func (e *MovableImage) GetPos() (posX, posY float64) {
 	return e.x, e.y
 }
 
@@ -206,11 +209,13 @@ type ScaleAnimation struct {
 	// target x
 	Tsx float64
 	// target y
-	Tsy     float64
+	Tsy float64
+	// center of scale, the default is the top left
 	CenterX float64
 	CenterY float64
-	SpeedX  float64
-	SpeedY  float64
+	// speed of scale change per update tick
+	SpeedX float64
+	SpeedY float64
 }
 
 func (s *ScaleAnimation) Apply(img *MovableImage) {
