@@ -60,6 +60,8 @@ scene.Done = func() {
 ```
 The full example of this example is in sample2 directory. Sample directory is for more complex example where we use multiple scene, have scene transition, and dialogue option
 
+the sampletopdown is not the most efficient or robust example, please look up [testtopdown](https://github.com/kharism/testtopdown) for better example
+
 ## Example of my game that uses Hanashi
 
 [RogueSolitaire](https://kharism.itch.io/roguesolitaire)
