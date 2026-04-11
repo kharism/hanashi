@@ -41,6 +41,9 @@ func (g *CustomScene) GetNamePosition() (x, y int) {
 func (g *CustomScene) GetTextPosition() (x, y int) {
 	return 0, 512 - 70
 }
+func (g *CustomScene) GetTextBGPosition() (x int, y int) {
+	return 0, 512 - 100
+}
 
 // an example how we structure a scene. We have Characters which we going to use
 // then an order of events to tell scene what to do.

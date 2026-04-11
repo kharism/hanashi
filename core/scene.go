@@ -181,6 +181,8 @@ type GetLayouter interface {
 	GetNamePosition() (x, y int)
 	// get the starting position of the text
 	GetTextPosition() (x, y int)
+	// get the location of bg for text
+	GetTextBGPosition() (x, y int)
 }
 
 type TxtBgGetter interface {
@@ -336,11 +338,12 @@ func (g *Scene) Draw(screen *ebiten.Image) {
 	if g.CurrentSubState == nil {
 		nameX, nameY := g.getLayouter.GetNamePosition()
 		dialogueX, dialogueY := g.getLayouter.GetTextPosition()
+		textBgX, textBgY := g.getLayouter.GetTextBGPosition()
 
 		if g.TxtBg != nil {
 			// w, h := g.getLayouter.GetLayout()
 			opt := ebiten.DrawImageOptions{}
-			opt.GeoM.Translate(float64(nameX), float64(nameY))
+			opt.GeoM.Translate(float64(textBgX), float64(textBgY))
 			screen.DrawImage(g.TxtBg, &opt)
 		}
 

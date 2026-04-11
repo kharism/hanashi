@@ -40,9 +40,9 @@ const (
 )
 
 func init() {
-	audioContext = audio.NewContext(sampleRate)
+	audioContext = audio.CurrentContext()
 	if audioContext == nil {
-		audioContext = audio.CurrentContext()
+		audioContext = audio.NewContext(sampleRate)
 	}
 }
 
@@ -120,7 +120,7 @@ func (p *DefaultAudioInterface) PlayBgm(audio []byte, format MusicType) {
 		}
 		// b, err = io.ReadAll(s)
 	} else if format == TypeOgg {
-		s, err = mp3.DecodeWithoutResampling(bytes.NewReader(audio))
+		s, err = vorbis.DecodeWithoutResampling(bytes.NewReader(audio))
 		// p.seCh <- param
 		if err != nil {
 			log.Fatal(err)

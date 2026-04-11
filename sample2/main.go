@@ -39,6 +39,9 @@ func (g *Game) GetNamePosition() (x, y int) {
 func (g *Game) GetTextPosition() (x, y int) {
 	return 0, 512 - 70
 }
+func (g *Game) GetTextBGPosition() (x int, y int) {
+	return 0, 512 - 100
+}
 
 type ImagePool struct {
 	Map map[string]*ebiten.Image
