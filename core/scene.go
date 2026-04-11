@@ -48,6 +48,9 @@ type Scene struct {
 	OptionPikerSubstate SubState
 	// this function is executed after the scene complete
 	Done func()
+
+	// This is to ignore any click
+	PreventsClick bool
 }
 
 func NewScene() *Scene {
@@ -289,13 +292,15 @@ func (g *Scene) Update() error {
 		g.AudioInterface.Update()
 	}
 
-	g.CurrentBg.Update()
+	if g.CurrentBg != nil {
+		g.CurrentBg.Update()
+	}
 	for _, c := range g.ViewableCharacters {
 		c.Img.Update()
 	}
 	if g.CurrentSubState == nil {
 		clicked, _, _ := IsClickedOrTap()
-		if clicked || (DetectKeyboardNext != nil && DetectKeyboardNext()) {
+		if !g.PreventsClick && (clicked || (DetectKeyboardNext != nil && DetectKeyboardNext())) {
 			g.EventIndex += 1
 			if g.EventIndex >= len(g.Events) {
 				g.Done()
