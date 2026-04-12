@@ -332,9 +332,7 @@ func (g *Scene) Draw(screen *ebiten.Image) {
 		// screen.DrawImage(g.CurrentBg, &drawOptions)
 		g.CurrentBg.Draw(screen)
 	}
-	for _, c := range g.ViewableCharacters {
-		c.Img.Draw(screen)
-	}
+
 	if g.CurrentSubState == nil {
 		nameX, nameY := g.getLayouter.GetNamePosition()
 		dialogueX, dialogueY := g.getLayouter.GetTextPosition()
@@ -360,7 +358,13 @@ func (g *Scene) Draw(screen *ebiten.Image) {
 		textOpt2.ColorScale.ScaleWithColor(color.White)
 		textOpt2.LineSpacing = 24
 		text.Draw(screen, g.VisibleDialog, curFont, &textOpt2)
+		for _, c := range g.ViewableCharacters {
+			c.Img.Draw(screen)
+		}
 	} else {
+		for _, c := range g.ViewableCharacters {
+			c.Img.Draw(screen)
+		}
 		g.CurrentSubState.Draw(screen)
 	}
 
