@@ -25,6 +25,12 @@ type AudioInterface interface {
 	PlaySfx(audio []byte, format MusicType, sfxname string)
 	// stop sfxname
 	StopSfx(sfxname string)
+
+	SetBGMVolume(int)
+	GetBGMVolume() int
+
+	SetSFXVolume(int)
+	GetSFXVolume() int
 }
 type MusicType int
 
@@ -59,8 +65,9 @@ type DefaultAudioInterface struct {
 	seBytes sfxItem
 	seCh    chan sfxItem
 
-	volume128 int
-	sfxMaps   map[string]*audio.Player
+	bgmVolume128 int
+	sfxVolume128 int
+	sfxMaps      map[string]*audio.Player
 
 	musicType MusicType
 	playSfx   bool
@@ -132,6 +139,7 @@ func (p *DefaultAudioInterface) PlayBgm(audio []byte, format MusicType) {
 	if err != nil {
 		return
 	}
+	pl.SetVolume(float64(p.bgmVolume128) / 128)
 	p.audioPlayer = pl
 	p.audioPlayer.Play()
 	p.loopBgm = true
@@ -141,7 +149,7 @@ func (p *DefaultAudioInterface) StopBgm() {
 	p.loopBgm = false
 	// p.audioPlayer.Close()
 }
-func NewDefaultAudioInterfacer() (*DefaultAudioInterface, error) {
+func NewDefaultAudioInterfacer() (AudioInterface, error) {
 	type audioStream interface {
 		io.ReadSeeker
 		Length() int64
@@ -165,10 +173,9 @@ func NewDefaultAudioInterfacer() (*DefaultAudioInterface, error) {
 		audioPlayer:  p,
 		sfxMaps:      make(map[string]*audio.Player),
 		// total:        time.Second * time.Duration(s.Length()) / bytesPerSample / sampleRate,
-		volume128: 2,
-		seCh:      make(chan sfxItem, 100),
-		seBytes:   sfxItem{},
-		loopBgm:   true,
+		seCh:    make(chan sfxItem, 100),
+		seBytes: sfxItem{},
+		loopBgm: true,
 		// musicType:    musicType,
 	}
 	// if player.total == 0 {
@@ -178,6 +185,23 @@ func NewDefaultAudioInterfacer() (*DefaultAudioInterface, error) {
 	// player.audioPlayer.Play()
 
 	return player, nil
+}
+
+// vol should be somehwere between 0-128
+func (p *DefaultAudioInterface) SetBGMVolume(vol int) {
+	p.bgmVolume128 = vol
+	p.audioPlayer.SetVolume(float64(p.bgmVolume128) / 128)
+}
+func (p *DefaultAudioInterface) GetBGMVolume() int {
+	return p.bgmVolume128
+}
+
+// vol should be somehwere between 0-128
+func (p *DefaultAudioInterface) SetSFXVolume(vol int) {
+	p.sfxVolume128 = vol
+}
+func (p *DefaultAudioInterface) GetSFXVolume() int {
+	return p.sfxVolume128
 }
 func (p *DefaultAudioInterface) StopSfx(sfxname string) {
 	if pl, ok := p.sfxMaps[sfxname]; ok {

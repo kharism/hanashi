@@ -32,3 +32,18 @@ type StopSfxEvent struct {
 func (f *StopSfxEvent) Execute(scene *Scene) {
 	scene.AudioInterface.StopSfx(f.Name)
 }
+
+type SetVolumeEvent struct {
+	// 0 for BGM, 1 for SFX
+	Type int
+	// 0-128 only
+	Vol int
+}
+
+func (f *SetVolumeEvent) Execute(scene *Scene) {
+	if f.Type == 0 {
+		scene.AudioInterface.SetBGMVolume(f.Vol)
+	} else if f.Type == 1 {
+		scene.AudioInterface.SetSFXVolume(f.Vol)
+	}
+}
