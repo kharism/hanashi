@@ -89,7 +89,7 @@ func (p *DefaultAudioInterface) Update() error {
 		// p.seCh = nil
 	default:
 	}
-	if p.loopBgm && !p.audioPlayer.IsPlaying() {
+	if p.loopBgm && p.audioPlayer != nil && !p.audioPlayer.IsPlaying() {
 		p.audioPlayer.Rewind()
 		p.audioPlayer.Play()
 	}
